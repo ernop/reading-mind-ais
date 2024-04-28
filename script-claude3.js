@@ -1,12 +1,10 @@
-
-
 let currentSet = "midjourney-audrey-hepburn";
 let currentQuestion = 0;
 let numberRight = 0;
 let numberWrong = 0;
 let totalQuestions = 500;
 let allQuestions = [];
-let numberOfAnswerButtons=4;
+let numberOfAnswerButtons = 4;
 let answeredQuestions = [];
 
 // Function to load all existing images and create an array of questions
@@ -16,19 +14,26 @@ function loadAllQuestions() {
   for (const emotion of emotions) {
     for (let imageNumber = 0; imageNumber < 10; imageNumber++) {
       const imagePath = `./images/${currentSet}/${emotion}${imageNumber}.png`;
-      const choices = [emotion];
-      while (choices.length < numberOfAnswerButtons) {
-        const randomChoice = emotions[Math.floor(Math.random() * emotions.length)];
-        if (!choices.includes(randomChoice)) {
-          choices.push(randomChoice);
-        }
-      }
-      shuffleArray(choices);
+      const choices = getRandomChoices(emotions, emotion);
       allQuestions.push({ imagePath, choices, answer: emotion });
     }
   }
   shuffleArray(allQuestions);
 }
+
+// Function to get random choices for the question
+function getRandomChoices(emotions, correctEmotion) {
+  const choices = [correctEmotion];
+  while (choices.length < numberOfAnswerButtons) {
+    const randomChoice = emotions[Math.floor(Math.random() * emotions.length)];
+    if (!choices.includes(randomChoice)) {
+      choices.push(randomChoice);
+    }
+  }
+  shuffleArray(choices);
+  return choices;
+}
+
 // Function to shuffle an array
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -39,15 +44,14 @@ function shuffleArray(array) {
 
 // Function to display the question on the HTML page
 function displayQuestion() {
-
   const questionImage = document.getElementById("question-image");
   const choicesContainer = document.getElementById("choices-container");
   const scoreContainer = document.getElementById("score-container");
-  
   const questionNumberContainer = document.getElementById("question-number-container");
+  const navPrevButton = document.getElementById("prev-btn");
+  const navNextButton = document.getElementById("next-nav-btn");
+
   questionNumberContainer.textContent = `Question ${currentQuestion + 1} of ${allQuestions.length}`;
-  
-  // Clear previous answer buttons
   choicesContainer.innerHTML = "";
 
   if (allQuestions.length === 0) {
@@ -61,42 +65,23 @@ function displayQuestion() {
 
   const question = allQuestions[currentQuestion];
   const img = new Image();
-  
-  const navPrevButton = document.getElementById("prev-btn");
-  const navNextButton = document.getElementById("next-nav-btn");
 
-  if (currentQuestion === 0) {
-    navPrevButton.disabled = true;
-  } else {
-    navPrevButton.disabled = false;
-  }
+  navPrevButton.disabled = currentQuestion === 0;
+  navNextButton.disabled = currentQuestion === answeredQuestions.length;
 
-  if (currentQuestion === answeredQuestions.length) {
-    navNextButton.disabled = true;
-  } else {
-    navNextButton.disabled = false;
-  }
-  
-  img.onload = function() {
+  img.onload = function () {
     questionImage.src = question.imagePath;
 
     // Create answer buttons dynamically
-    for (let i = 0; i < numberOfAnswerButtons; i++) {
-      const choiceButton = document.createElement("button");
-      choiceButton.classList.add("choice-btn");
-      choiceButton.textContent = question.choices[i];
-      choiceButton.disabled = false;
-      choiceButton.style.backgroundColor = "#f0f0f0";
-      choiceButton.style.color = "black";
-      choiceButton.onclick = function() {
-        checkAnswer(question.answer, choiceButton);
-      };
+    question.choices.forEach((choice) => {
+      const choiceButton = createChoiceButton(choice, question.answer);
       choicesContainer.appendChild(choiceButton);
-    }
+    });
 
-    scoreContainer.textContent = `Score: ${numberRight} / ${numberRight+numberWrong}`;
+    scoreContainer.textContent = `Score: ${numberRight} / ${numberRight + numberWrong}`;
   };
-  img.onerror = function() {
+
+  img.onerror = function () {
     allQuestions.splice(currentQuestion, 1);
     if (currentQuestion >= allQuestions.length) {
       endGame();
@@ -104,8 +89,23 @@ function displayQuestion() {
       displayQuestion();
     }
   };
+
   img.src = question.imagePath;
   console.log(question.imagePath);
+}
+
+// Function to create a choice button
+function createChoiceButton(choice, answer) {
+  const choiceButton = document.createElement("button");
+  choiceButton.classList.add("choice-btn");
+  choiceButton.textContent = choice;
+  choiceButton.disabled = false;
+  choiceButton.style.backgroundColor = "#f0f0f0";
+  choiceButton.style.color = "black";
+  choiceButton.onclick = function () {
+    checkAnswer(answer, choiceButton);
+  };
+  return choiceButton;
 }
 
 // Function to check the user's answer and provide feedback
@@ -114,10 +114,10 @@ function checkAnswer(answer, selectedButton) {
   const nextButton = document.getElementById("next-btn");
   const choiceButtons = document.getElementsByClassName("choice-btn");
   const scoreContainer = document.getElementById("score-container");
-  
   const questionNumberContainer = document.getElementById("question-number-container");
+
   questionNumberContainer.textContent = `Question ${currentQuestion + 1} of ${allQuestions.length}`;
-  
+
   if (selectedButton.textContent === answer) {
     resultContainer.textContent = "Correct!";
     selectedButton.style.backgroundColor = "green";
@@ -127,32 +127,31 @@ function checkAnswer(answer, selectedButton) {
     selectedButton.style.backgroundColor = "red";
     selectedButton.style.color = "white";
     numberWrong++;
-    for (let i = 0; i < choiceButtons.length; i++) {
-      if (choiceButtons[i].textContent === answer) {
-        choiceButtons[i].style.backgroundColor = "green";
-        choiceButtons[i].style.color = "white";
-        break;
+    Array.from(choiceButtons).forEach((button) => {
+      if (button.textContent === answer) {
+        button.style.backgroundColor = "green";
+        button.style.color = "white";
       }
-    }
+    });
   }
-  
+
   answeredQuestions[currentQuestion] = {
     question: allQuestions[currentQuestion],
     userAnswer: selectedButton.textContent,
     correctAnswer: answer,
   };
 
-  // Update the score display
-  scoreContainer.textContent = `Score: ${numberRight} / ${numberRight+numberWrong}`;
+  scoreContainer.textContent = `Score: ${numberRight} / ${numberRight + numberWrong}`;
 
-  for (let i = 0; i < choiceButtons.length; i++) {
-    choiceButtons[i].disabled = true;
-  }
+  Array.from(choiceButtons).forEach((button) => {
+    button.disabled = true;
+  });
 
   nextButton.style.display = "block";
   currentQuestion++;
 }
 
+// Function to navigate to the previous question
 function previousQuestion() {
   if (currentQuestion > 0) {
     currentQuestion--;
@@ -160,18 +159,20 @@ function previousQuestion() {
       displayAnsweredQuestion();
     } else {
       const resultContainer = document.getElementById("result-container");
-      resultContainer.textContent = ""; // Clear the result text
+      resultContainer.textContent = "";
       displayQuestion();
     }
   }
 }
+
+// Function to navigate to the next answered question
 function nextAnsweredQuestion() {
   if (currentQuestion < answeredQuestions.length - 1) {
     currentQuestion++;
     displayAnsweredQuestion();
   } else if (currentQuestion === answeredQuestions.length - 1) {
     const resultContainer = document.getElementById("result-container");
-    resultContainer.textContent = ""; // Clear the result text
+    resultContainer.textContent = "";
     currentQuestion++;
     displayQuestion();
   }
@@ -186,63 +187,57 @@ function displayAnsweredQuestion() {
   const nextButton = document.getElementById("next-btn");
   const navPrevButton = document.getElementById("prev-btn");
   const navNextButton = document.getElementById("next-nav-btn");
+  const questionNumberContainer = document.getElementById("question-number-container");
 
   console.log("Current question in displayAnsweredQuestion:", currentQuestion);
   console.log("Answered questions length in displayAnsweredQuestion:", answeredQuestions.length);
 
   if (currentQuestion < answeredQuestions.length) {
     const answeredQuestion = answeredQuestions[currentQuestion];
-    const questionIndex = allQuestions.findIndex(
-      (question) => question.imagePath === answeredQuestion.question.imagePath
-    );
 
-    const questionNumberContainer = document.getElementById("question-number-container");
     questionNumberContainer.textContent = `Question ${currentQuestion + 1} of ${answeredQuestions.length}`;
     questionImage.src = answeredQuestion.question.imagePath;
 
     choicesContainer.innerHTML = "";
-    for (let i = 0; i < numberOfAnswerButtons; i++) {
-      const choiceButton = document.createElement("button");
-      choiceButton.classList.add("choice-btn");
-      choiceButton.textContent = answeredQuestion.question.choices[i];
-      choiceButton.disabled = true;
-
-      if (choiceButton.textContent === answeredQuestion.userAnswer) {
-        choiceButton.style.backgroundColor =
-          answeredQuestion.userAnswer === answeredQuestion.correctAnswer ? "green" : "red";
-        choiceButton.style.color = "white";
-      } else if (choiceButton.textContent === answeredQuestion.correctAnswer) {
-        choiceButton.style.backgroundColor = "green";
-        choiceButton.style.color = "white";
-      }
-
+    answeredQuestion.question.choices.forEach((choice) => {
+      const choiceButton = createAnsweredChoiceButton(
+        choice,
+        answeredQuestion.userAnswer,
+        answeredQuestion.correctAnswer
+      );
       choicesContainer.appendChild(choiceButton);
-    }
+    });
 
     scoreContainer.textContent = `Score: ${numberRight} / ${numberRight + numberWrong}`;
     resultContainer.textContent =
       answeredQuestion.userAnswer === answeredQuestion.correctAnswer ? "Correct!" : "Wrong!";
     nextButton.style.display = "none";
 
-    // Enable/disable navigation buttons
-    if (currentQuestion === 0) {
-      navPrevButton.disabled = true;
-    } else {
-      navPrevButton.disabled = false;
-    }
-
-    if (currentQuestion === answeredQuestions.length - 1) {
-      navNextButton.disabled = false;
-    } else {
-      navNextButton.disabled = false;
-    }
+    navPrevButton.disabled = currentQuestion === 0;
+    navNextButton.disabled = currentQuestion === answeredQuestions.length - 1;
   } else {
     console.log("Current question is not within answered questions range");
     displayQuestion();
   }
 }
 
+// Function to create an answered choice button
+function createAnsweredChoiceButton(choice, userAnswer, correctAnswer) {
+  const choiceButton = document.createElement("button");
+  choiceButton.classList.add("choice-btn");
+  choiceButton.textContent = choice;
+  choiceButton.disabled = true;
 
+  if (choice === userAnswer) {
+    choiceButton.style.backgroundColor = userAnswer === correctAnswer ? "green" : "red";
+    choiceButton.style.color = "white";
+  } else if (choice === correctAnswer) {
+    choiceButton.style.backgroundColor = "green";
+    choiceButton.style.color = "white";
+  }
+
+  return choiceButton;
+}
 
 // Function to handle the "next" button click
 function nextQuestion() {
@@ -267,6 +262,7 @@ function changeSet(event) {
   updateExplanationText();
 }
 
+// Function to update the explanation text
 function updateExplanationText() {
   const explanationText = document.getElementById("explanation-text");
   const selectedSet = imageSets[currentSet];
@@ -280,7 +276,6 @@ function updateExplanationText() {
   `;
 }
 
-
 // Function to reset the game
 function resetGame() {
   const setDropdown = document.getElementById("set-dropdown");
@@ -289,7 +284,6 @@ function resetGame() {
   numberRight = 0;
   numberWrong = 0;
 
-  // Set the selected option based on the current set
   setDropdown.value = currentSet;
 
   displayQuestion();
@@ -302,12 +296,13 @@ function endGame() {
 
   gameContainer.innerHTML = `
     <h2>You have done all the questions.</h2>
-    <p>Your final score: ${numberRight} / ${numberRight+numberWrong}</p>
+    <p>Your final score: ${numberRight} / ${numberRight + numberWrong}</p>
     <button onclick="resetGame()">Play Again</button>
   `;
   scoreContainer.textContent = "";
 }
 
+// Function to initialize the game
 function initGame() {
   const questionMark = document.getElementById("question-mark");
   const setDropdown = document.getElementById("set-dropdown");
@@ -337,6 +332,7 @@ function initGame() {
   displayQuestion();
 }
 
+// Function to show the explanation text
 function showExplanation() {
   const explanationText = document.getElementById("explanation-text");
   const selectedSet = imageSets[currentSet];
@@ -349,15 +345,15 @@ function showExplanation() {
     <strong>Date:</strong> ${selectedSet.date}
   `;
 
-    explanationText.style.display="block";
+  explanationText.style.display = "block";
 }
 
+// Function to hide the explanation text
 function hideExplanation() {
   const explanationText = document.getElementById("explanation-text");
   explanationText.innerHTML = "";
-  explanationText.style.display="none";
+  explanationText.style.display = "none";
 }
-
 
 // Start the game
 initGame();
