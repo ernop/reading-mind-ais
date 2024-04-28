@@ -2,7 +2,6 @@ let currentSet = "midjourney-audrey-hepburn";
 let currentQuestion = 0;
 let numberRight = 0;
 let numberWrong = 0;
-let totalQuestions = 500;
 let allQuestions = [];
 let numberOfAnswerButtons = 4;
 let answeredQuestions = [];
@@ -91,7 +90,6 @@ function displayQuestion() {
   };
 
   img.src = question.imagePath;
-  console.log(question.imagePath);
 }
 
 // Function to create a choice button
@@ -149,6 +147,10 @@ function checkAnswer(answer, selectedButton) {
 
   nextButton.style.display = "block";
   currentQuestion++;
+  if (currentQuestion === allQuestions.length) {
+    const navNextButton = document.getElementById("next-nav-btn");
+    navNextButton.disabled = false;
+  }
 }
 
 // Function to navigate to the previous question
@@ -170,10 +172,11 @@ function nextAnsweredQuestion() {
   if (currentQuestion < answeredQuestions.length - 1) {
     currentQuestion++;
     displayAnsweredQuestion();
-  } else if (currentQuestion === answeredQuestions.length - 1) {
+  } else {
     const resultContainer = document.getElementById("result-container");
+    const navNextButton = document.getElementById("next-nav-btn");
     resultContainer.textContent = "";
-    currentQuestion++;
+    navNextButton.disabled = false; // Enable the "Next" button
     displayQuestion();
   }
 }
@@ -188,9 +191,6 @@ function displayAnsweredQuestion() {
   const navPrevButton = document.getElementById("prev-btn");
   const navNextButton = document.getElementById("next-nav-btn");
   const questionNumberContainer = document.getElementById("question-number-container");
-
-  console.log("Current question in displayAnsweredQuestion:", currentQuestion);
-  console.log("Answered questions length in displayAnsweredQuestion:", answeredQuestions.length);
 
   if (currentQuestion < answeredQuestions.length) {
     const answeredQuestion = answeredQuestions[currentQuestion];
@@ -214,9 +214,8 @@ function displayAnsweredQuestion() {
     nextButton.style.display = "none";
 
     navPrevButton.disabled = currentQuestion === 0;
-    navNextButton.disabled = currentQuestion === answeredQuestions.length - 1;
+    navNextButton.disabled = currentQuestion === answeredQuestions.length - 1 && currentQuestion === allQuestions.length - 1;
   } else {
-    console.log("Current question is not within answered questions range");
     displayQuestion();
   }
 }
@@ -229,7 +228,7 @@ function createAnsweredChoiceButton(choice, userAnswer, correctAnswer) {
   choiceButton.disabled = true;
 
   if (choice === userAnswer) {
-    choiceButton.style.backgroundColor = userAnswer === correctAnswer ? "green" : "red";
+    choiceButton.style.backgroundColor = choice === correctAnswer ? "green" : "red";
     choiceButton.style.color = "white";
   } else if (choice === correctAnswer) {
     choiceButton.style.backgroundColor = "green";
@@ -243,12 +242,17 @@ function createAnsweredChoiceButton(choice, userAnswer, correctAnswer) {
 function nextQuestion() {
   const nextButton = document.getElementById("next-btn");
   const resultContainer = document.getElementById("result-container");
+  const navNextButton = document.getElementById("next-nav-btn");
 
   nextButton.style.display = "none";
   resultContainer.textContent = "";
 
-  if (currentQuestion < totalQuestions) {
+  if (currentQuestion < allQuestions.length) {
     displayQuestion();
+
+    if (currentQuestion === allQuestions.length - 1) {
+      navNextButton.disabled = true;
+    }
   } else {
     endGame();
   }
@@ -267,24 +271,15 @@ function updateExplanationText() {
   const explanationText = document.getElementById("explanation-text");
   const selectedSet = imageSets[currentSet];
 
-  explanationText.innerHTML = `
-    <strong>SET:</strong> ${selectedSet.humanReadableName}<br>
-    <strong>Prompt:</strong> ${selectedSet.prompt}<br>
-    <strong>Emotions:</strong> ${selectedSet.emotions.join(", ")}<br>
-    <strong>Source:</strong> ${selectedSet.source}<br>
-    <strong>Date:</strong> ${selectedSet.date}
-  `;
+  displayExplanationText(explanationText, selectedSet);
 }
 
 // Function to reset the game
 function resetGame() {
-  const setDropdown = document.getElementById("set-dropdown");
-
   currentQuestion = 0;
   numberRight = 0;
   numberWrong = 0;
-
-  setDropdown.value = currentSet;
+  answeredQuestions = [];
 
   displayQuestion();
 }
@@ -294,11 +289,7 @@ function endGame() {
   const gameContainer = document.getElementById("game-container");
   const scoreContainer = document.getElementById("score-container");
 
-  gameContainer.innerHTML = `
-    <h2>You have done all the questions.</h2>
-    <p>Your final score: ${numberRight} / ${numberRight + numberWrong}</p>
-    <button onclick="resetGame()">Play Again</button>
-  `;
+  gameContainer.innerHTML = `<h2>You have done all the questions.</h2>     <p>Your final score: ${numberRight} / ${numberRight + numberWrong}</p>     <button onclick="resetGame()">Play Again</button>`;
   scoreContainer.textContent = "";
 }
 
@@ -315,11 +306,11 @@ function initGame() {
 
   // Populate the dropdown options dynamically from the imageSets object
   for (const setName in imageSets) {
-    const option = document.createElement("option");
-    option.value = setName;
-    option.textContent = imageSets[setName].humanReadableName;
-    setDropdown.appendChild(option);
-  }
+  const option = document.createElement("option");
+  option.value = setName;
+  option.textContent = imageSets[setName].humanReadableName;
+  setDropdown.appendChild(option);
+}
 
   setDropdown.value = currentSet;
   updateExplanationText();
@@ -337,15 +328,13 @@ function showExplanation() {
   const explanationText = document.getElementById("explanation-text");
   const selectedSet = imageSets[currentSet];
 
-  explanationText.innerHTML = `
-    <strong>SET:</strong> ${selectedSet.humanReadableName}<br>
-    <strong>Prompt:</strong> ${selectedSet.prompt}<br>
-    <strong>Emotions:</strong> ${selectedSet.emotions.join(", ")}<br>
-    <strong>Source:</strong> ${selectedSet.source}<br>
-    <strong>Date:</strong> ${selectedSet.date}
-  `;
-
+  displayExplanationText(explanationText, selectedSet);
   explanationText.style.display = "block";
+}
+
+// Function to display the explanation text
+function displayExplanationText(explanationText, selectedSet) {
+  explanationText.innerHTML = `<strong>SET:</strong> ${selectedSet.humanReadableName}<br>     <strong>Prompt:</strong> ${selectedSet.prompt}<br>     <strong>Emotions:</strong> ${selectedSet.emotions.join(", ")}<br>     <strong>Source:</strong> ${selectedSet.source}<br>     <strong>Date:</strong> ${selectedSet.date}`;
 }
 
 // Function to hide the explanation text
