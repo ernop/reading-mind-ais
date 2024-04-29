@@ -12,7 +12,7 @@ function loadAllQuestions() {
 
   for (const emotion of emotions) {
     for (let imageNumber = 0; imageNumber < 10; imageNumber++) {
-      const imagePath = `./images/${currentSet}/${emotion}${imageNumber}.png`;
+      const imagePath = `./images/${currentSet}/${emotion.replace(' ','')}${imageNumber}.png`;
       const choices = getRandomChoices(emotions, emotion);
       allQuestions.push({ imagePath, choices, answer: emotion });
     }
@@ -293,6 +293,8 @@ function endGame() {
   scoreContainer.textContent = "";
 }
 
+let isExplanationVisible = false;
+
 // Function to initialize the game
 function initGame() {
   const questionMark = document.getElementById("question-mark");
@@ -301,8 +303,15 @@ function initGame() {
   document.getElementById("prev-btn").addEventListener("click", previousQuestion);
   document.getElementById("next-nav-btn").addEventListener("click", nextAnsweredQuestion);
 
-  questionMark.addEventListener("mouseover", showExplanation);
-  questionMark.addEventListener("mouseout", hideExplanation);
+  questionMark.addEventListener('click', () => {
+        if (isExplanationVisible) {
+            hideExplanation();
+            isExplanationVisible=false;
+        } else {
+            showExplanation();
+            isExplanationVisible=true;
+        }
+    });
 
   // Populate the dropdown options dynamically from the imageSets object
   for (const setName in imageSets) {

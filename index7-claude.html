@@ -4,108 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reading the Mind in the AI generated images</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-        }
-        #game-container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        #image-container {
-            text-align: center;
-            margin-bottom: 20px;
-            height:350px;
-        }
-        #image-container img {
-            max-width: 100%;
-            height: auto;
-            width: 80%;
-        }
-        #choices-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .choice-btn {
-            padding: 10px;
-            font-size: 16px;
-            background-color: #f0f0f0;
-            border: none;
-            cursor: pointer;
-        }
-        .choice-btn:hover {
-            background-color: #e0e0e0;
-        }
-        #score-container {
-            text-align: center;
-            font-size: 18px;
-            margin-bottom: 20px;
-        }
-        #result-container {
-            text-align: center;
-            font-size: 20px;
-            margin-bottom: 20px;
-            margin-top:20px;
-            height:30px;
-        }
-        #next-btn-container{
-            height:50px;
-        }
-        #next-btn {
-            display: block;
-            margin: 0 auto;
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        #next-btn:hover {
-            background-color: #45a049;
-        }
-        #set-dropdown {
-            display: block;
-            margin: 20px auto;
-            margin-top: 0;
-            padding: 10px;
-            font-size: 16px;
-            float:left; margin-right:14px;
-        }
-        #set-container {
-          display: inline-block;
-          align-items: center;
-          justify-content: center;
-          margin-top: 20px;
-        }
-
-        #question-mark {
-          cursor: pointer;
-          font-size:2em;
-          padding:5px;
-          display:inline-block;
-          float:left;
-          color:#ddd;
-          font-color:#ddd;
-          margin-top:-6px;
-        }
-
-        #explanation-text {
-          margin-left: 10px;
-          padding: 10px;
-          background-color: #f0f0f0;
-          border: 1px solid #ccc;
-          border-radius: 4px;
-          max-width: 400px;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h1>Reading the Mind in the AI(generated image)s</h1>
@@ -113,30 +12,33 @@
         <div id="image-container">
             <img id="question-image" src="" alt="Question Image">
         </div>
-        <div id="choices-container">
-            
-        </div>
-        
+        <div id="choices-container"></div>
         <div id="next-btn-container">
             <button id="next-btn" style="display: none;">Next</button>
         </div>
         <div id="result-container"></div>
         <div id="score-container"></div>
     </div>
-    <div><select id="set-dropdown" style=""></select></div>
-    <div id="question-mark" title="Click to see SET information">❔</div>
-    
-    <div id="navigation-container">
-  <button id="prev-btn" disabled>Previous</button>
-  <button id="next-nav-btn" disabled>Next</button>
-  <div id="question-number-container"></div>
-</div>
-    <div id="set-container" style="clear:both;">
-       
-       
-       <div style="display:none;" id="explanation-text"></div>
+    <div id="bottom-container">
+        <div id="left-container">
+            <div id="left-content">
+                <select id="set-dropdown"></select>
+                <div id="question-mark">❔</div>
+                <div id="info-container">
+                    <div style="display:none;" id="explanation-text"></div>
+                </div>
+            </div>
+        </div>
+        <div id="right-container">
+            <div id="question-number-container"></div>
+            <div id="navigation-container">
+                <button id="prev-btn" disabled>Previous</button>
+                <button id="next-nav-btn" disabled>Next</button>
+            </div>
+        </div>
     </div>
-    <script src="imageSets.js"></script>
-    <script src="script-claude3.js"></script>
+
+<script src="imageSets.js"></script>
+<script src="script-claude3.js"></script>
 </body>
 </html>
