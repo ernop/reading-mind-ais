@@ -38,51 +38,58 @@ function shuffleArray(array) {
   }
 }
 
-function displayQuestion() {
-  const questionImage = document.getElementById("question-image");
-  const choicesContainer = document.getElementById("choices-container");
-  const scoreContainer = document.getElementById("score-container");
-  const questionNumberContainer = document.getElementById("question-number-container");
-  const prevButton= document.getElementById("prev-btn");
-  const nextButton = document.getElementById("next-btn");
-
-  questionNumberContainer.textContent = `Question ${currentQuestion + 1} of ${allQuestions.length}`;
-  choicesContainer.innerHTML = "";
-
-  if (allQuestions.length === 0) {
-    loadAllQuestions();
-  }
-
-  const question = allQuestions[currentQuestion];
-  const img = new Image();
-
-  // Disable the previous button if it's the first question
-  prevButton.disabled = currentQuestion === 0;
-
-  // Disable the next button if it's the last completed question
-  nextButton.disabled = currentQuestion >= answeredQuestions.length;
-
-  img.onload = function () {
-    questionImage.src = question.imagePath;
-    question.choices.forEach((choice) => {
-      const choiceButton = createChoiceButton(choice, question.answer);
-      choicesContainer.appendChild(choiceButton);
-    });
-
+function updateUIComponents(question, choicesContainer, questionNumberContainer, scoreContainer, prevButton, nextButton) {
+    questionNumberContainer.textContent = `Question ${currentQuestion + 1} of ${allQuestions.length}`;
+    choicesContainer.innerHTML = "";
     scoreContainer.textContent = `Score: ${numberRight} / ${numberRight + numberWrong}`;
-  };
+    updateButtonsState(prevButton, nextButton);
+}
 
-  //because we are not really sure all the images actually exist.
-  img.onerror = function () {
-    allQuestions.splice(currentQuestion, 1);
-    if (currentQuestion >= allQuestions.length) {
-      endGame();
-    } else {
-      displayQuestion();
+function updateButtonsState(prevButton, nextButton) {
+    prevButton.disabled = currentQuestion === 0;
+    nextButton.disabled = currentQuestion >= answeredQuestions.length;
+}
+
+function updateQuestionImage(questionImage, imagePath) {
+    const img = new Image();
+    img.onload = function() {
+        questionImage.src = imagePath;
+    };
+    img.onerror = function() {
+        allQuestions.splice(currentQuestion, 1);
+        if (currentQuestion >= allQuestions.length) {
+            endGame();
+        } else {
+            displayQuestion();
+        }
+    };
+    img.src = imagePath;
+}
+
+function displayQuestion() {
+    if (allQuestions.length === 0) {
+        loadAllQuestions();
     }
-  };
 
-  img.src = question.imagePath;
+    const question = allQuestions[currentQuestion];
+    updateUIComponents(question, document.getElementById("choices-container"), document.getElementById("question-number-container"), document.getElementById("score-container"), document.getElementById("prev-btn"), document.getElementById("next-btn"));
+    updateQuestionImage(document.getElementById("question-image"), question.imagePath);
+
+    question.choices.forEach((choice) => {
+        const choiceButton = createChoiceButton(choice, question.answer);
+        document.getElementById("choices-container").appendChild(choiceButton);
+    });
+}
+
+function displayAnsweredQuestion() {
+    const answeredQuestion = answeredQuestions[currentQuestion];
+    updateUIComponents(answeredQuestion.question, document.getElementById("choices-container"), document.getElementById("question-number-container"), document.getElementById("score-container"), document.getElementById("prev-btn"), document.getElementById("next-btn"));
+    updateQuestionImage(document.getElementById("question-image"), answeredQuestion.question.imagePath);
+
+    answeredQuestion.question.choices.forEach((choice) => {
+        const choiceButton = createAnsweredChoiceButton(choice, answeredQuestion.userAnswer, answeredQuestion.correctAnswer);
+        document.getElementById("choices-container").appendChild(choiceButton);
+    });
 }
 
 function createChoiceButton(choice, answer) {
@@ -158,39 +165,7 @@ function goToPreviousQuestion() {
   }
 }
 
-function displayAnsweredQuestion() {
-  const questionImage = document.getElementById("question-image");
-  const choicesContainer = document.getElementById("choices-container");
-  const scoreContainer = document.getElementById("score-container");
-  const resultContainer = document.getElementById("result-container");
-  const nextButton = document.getElementById("next-btn");
-  const prevButton = document.getElementById("prev-btn");
-  const questionNumberContainer = document.getElementById("question-number-container");
 
-  const answeredQuestion = answeredQuestions[currentQuestion];
-
-  questionNumberContainer.textContent = `Question ${currentQuestion + 1} of ${answeredQuestions.length}`;
-  questionImage.src = answeredQuestion.question.imagePath;
-
-  choicesContainer.innerHTML = "";
-  answeredQuestion.question.choices.forEach((choice) => {
-    const choiceButton = createAnsweredChoiceButton(
-      choice,
-      answeredQuestion.userAnswer,
-      answeredQuestion.correctAnswer
-    );
-    choicesContainer.appendChild(choiceButton);
-  });
-
-  scoreContainer.textContent = `Score: ${numberRight} / ${numberRight + numberWrong}`;
-  resultContainer.textContent =
-    answeredQuestion.userAnswer === answeredQuestion.correctAnswer ? "Correct!" : "Wrong!";
-
-  // Show the next button if it's not the last question answered
-  nextButton.disabled = currentQuestion > answeredQuestions.length - 1;
-
-  prevButton.disabled = currentQuestion === 0;
-}
 
 function createAnsweredChoiceButton(choice, userAnswer, correctAnswer) {
   const choiceButton = document.createElement("button");
