@@ -73,7 +73,7 @@
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 10px;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
     }
 
     .choice-btn {
@@ -90,20 +90,22 @@
 
     #score-container {
         text-align: center;
-        margin-bottom: 10px;
+        margin-bottom: 16px;
     }
 
     #result-container {
         text-align: center;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
         height:20px;
     }
 
     #next-btn-container{
         height:36px;
-        margin-bottom:10px;
+        width:200px;
+        margin:auto;
+        margin-bottom:12px;
         display:grid;
-        grid-template-columns: 2fr auto;
+        grid-template-columns: 1fr 1fr;
         align-items: center;
         gap: 20px;
     }
@@ -116,6 +118,7 @@
         color: white;
         border: none;
         cursor: pointer;
+        font-size:10px;
     }
 
     #next-btn:hover, #prev-btn:hover {
@@ -190,12 +193,13 @@
             <img id="question-image" src="" alt="Question Image">
         </div>
         <div id="choices-container"></div>
+
+        <div id="result-container"></div>
+        <div id="score-container"></div>
         <div id="next-btn-container">
             <button id="prev-btn" disabled>Previous</button>
             <button id="next-btn" disabled>Next</button>
         </div>
-        <div id="result-container"></div>
-        <div id="score-container"></div>
     </div>
     <div id="bottom-container">
         <div id="left-container">

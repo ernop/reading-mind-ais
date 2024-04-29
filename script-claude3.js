@@ -1,34 +1,36 @@
-let currentSet = "midjourney-audrey-hepburn";
-let currentQuestion = 0;
-let numberRight = 0;
-let numberWrong = 0;
-let allQuestions = [];
-let numberOfAnswerButtons = 4;
-let answeredQuestions = [];
+let gameState = {
+    currentSet: "midjourney-audrey-hepburn",
+    currentQuestion: 0,
+    numberRight: 0,
+    numberWrong: 0,
+    allQuestions: [],
+    answeredQuestions: [],
+    numberOfAnswerButtons: 4
+};
 
 function loadAllQuestions() {
-  const emotions = imageSets[currentSet].emotions;
+    const emotions = imageSets[gameState.currentSet].emotions;
 
-  for (const emotion of emotions) {
-    for (let imageNumber = 0; imageNumber < 4; imageNumber++) {
-      const imagePath = `./images/${currentSet}/${emotion.replace(' ','')}${imageNumber}.png`;
-      const choices = getRandomChoices(emotions, emotion);
-      allQuestions.push({ imagePath, choices, answer: emotion });
+    for (const emotion of emotions) {
+        for (let imageNumber = 0; imageNumber < 4; imageNumber++) {
+            const imagePath = `./images/${gameState.currentSet}/${emotion.replace(' ', '')}${imageNumber}.png`;
+            const choices = getRandomChoices(emotions, emotion);
+            gameState.allQuestions.push({ imagePath, choices, answer: emotion });
+        }
     }
-  }
-  shuffleArray(allQuestions);
+    shuffleArray(gameState.allQuestions);
 }
 
 function getRandomChoices(emotions, correctEmotion) {
-  const choices = [correctEmotion];
-  while (choices.length < numberOfAnswerButtons) {
-    const randomChoice = emotions[Math.floor(Math.random() * emotions.length)];
-    if (!choices.includes(randomChoice)) {
-      choices.push(randomChoice);
+    const choices = [correctEmotion];
+    while (choices.length < gameState.numberOfAnswerButtons) {
+        const randomChoice = emotions[Math.floor(Math.random() * emotions.length)];
+        if (!choices.includes(randomChoice)) {
+            choices.push(randomChoice);
+        }
     }
-  }
-  shuffleArray(choices);
-  return choices;
+    shuffleArray(choices);
+    return choices;
 }
 
 function shuffleArray(array) {
@@ -39,25 +41,25 @@ function shuffleArray(array) {
 }
 
 function updateUIComponents(question, choicesContainer, questionNumberContainer, scoreContainer, prevButton, nextButton) {
-    questionNumberContainer.textContent = `Question ${currentQuestion + 1} of ${allQuestions.length}`;
+    questionNumberContainer.textContent = `Question ${gameState.currentQuestion + 1} of ${gameState.allQuestions.length}`;
     choicesContainer.innerHTML = "";
-    scoreContainer.textContent = `Score: ${numberRight} / ${numberRight + numberWrong}`;
+    scoreContainer.textContent = `Score: ${gameState.numberRight} / ${gameState.numberRight + gameState.numberWrong}`;
     updateButtonsState(prevButton, nextButton);
 }
 
 function updateButtonsState(prevButton, nextButton) {
-    prevButton.disabled = currentQuestion === 0;
-    nextButton.disabled = currentQuestion >= answeredQuestions.length;
+    prevButton.disabled = gameState.currentQuestion === 0;
+    nextButton.disabled = gameState.currentQuestion >= gameState.answeredQuestions.length;
 }
 
 function updateQuestionImage(questionImage, imagePath) {
     const img = new Image();
-    img.onload = function() {
+    img.onload = function () {
         questionImage.src = imagePath;
     };
-    img.onerror = function() {
-        allQuestions.splice(currentQuestion, 1);
-        if (currentQuestion >= allQuestions.length) {
+    img.onerror = function () {
+        gameState.allQuestions.splice(gameState.currentQuestion, 1);
+        if (gameState.currentQuestion >= gameState.allQuestions.length) {
             endGame();
         } else {
             displayQuestion();
@@ -67,11 +69,11 @@ function updateQuestionImage(questionImage, imagePath) {
 }
 
 function displayQuestion() {
-    if (allQuestions.length === 0) {
+    if (gameState.allQuestions.length === 0) {
         loadAllQuestions();
     }
 
-    const question = allQuestions[currentQuestion];
+    const question = gameState.allQuestions[gameState.currentQuestion];
     updateUIComponents(question, document.getElementById("choices-container"), document.getElementById("question-number-container"), document.getElementById("score-container"), document.getElementById("prev-btn"), document.getElementById("next-btn"));
     updateQuestionImage(document.getElementById("question-image"), question.imagePath);
 
@@ -82,7 +84,7 @@ function displayQuestion() {
 }
 
 function displayAnsweredQuestion() {
-    const answeredQuestion = answeredQuestions[currentQuestion];
+    const answeredQuestion = gameState.answeredQuestions[gameState.currentQuestion];
     updateUIComponents(answeredQuestion.question, document.getElementById("choices-container"), document.getElementById("question-number-container"), document.getElementById("score-container"), document.getElementById("prev-btn"), document.getElementById("next-btn"));
     updateQuestionImage(document.getElementById("question-image"), answeredQuestion.question.imagePath);
 
@@ -93,16 +95,16 @@ function displayAnsweredQuestion() {
 }
 
 function createChoiceButton(choice, answer) {
-  const choiceButton = document.createElement("button");
-  choiceButton.classList.add("choice-btn");
-  choiceButton.textContent = choice;
-  choiceButton.disabled = false;
-  choiceButton.style.backgroundColor = "#f0f0f0";
-  choiceButton.style.color = "black";
-  choiceButton.onclick = function () {
-    checkAnswer(answer, choiceButton);
-  };
-  return choiceButton;
+    const choiceButton = document.createElement("button");
+    choiceButton.classList.add("choice-btn");
+    choiceButton.textContent = choice;
+    choiceButton.disabled = false;
+    choiceButton.style.backgroundColor = "#f0f0f0";
+    choiceButton.style.color = "black";
+    choiceButton.onclick = function () {
+        checkAnswer(answer, choiceButton);
+    };
+    return choiceButton;
 }
 
 function checkAnswer(answer, selectedButton) {
@@ -114,12 +116,12 @@ function checkAnswer(answer, selectedButton) {
   if (selectedButton.textContent === answer) {
     resultContainer.textContent = "Correct!";
     selectedButton.style.backgroundColor = "green";
-    numberRight++;
+    gameState.numberRight++;
   } else {
     resultContainer.textContent = "Wrong!";
     selectedButton.style.backgroundColor = "red";
     selectedButton.style.color = "white";
-    numberWrong++;
+    gameState.numberWrong++;
     Array.from(choiceButtons).forEach(button => {
       if (button.textContent === answer) {
         button.style.backgroundColor = "green";
@@ -127,13 +129,13 @@ function checkAnswer(answer, selectedButton) {
     });
   }
 
-  answeredQuestions[currentQuestion] = {
-    question: allQuestions[currentQuestion],
+  gameState.answeredQuestions[gameState.currentQuestion] = {
+    question: gameState.allQuestions[gameState.currentQuestion],
     userAnswer: selectedButton.textContent,
     correctAnswer: answer,
   };
 
-  scoreContainer.textContent = `Score: ${numberRight} / ${numberRight + numberWrong}`;
+  scoreContainer.textContent = `Score: ${gameState.numberRight} / ${gameState.numberRight + gameState.numberWrong}`;
 
   Array.from(choiceButtons).forEach(button => {
     button.disabled = true;
@@ -142,52 +144,43 @@ function checkAnswer(answer, selectedButton) {
   nextButton.disabled = false;
 }
 
-function goToNextQuestion() {
-  const nextButton = document.getElementById("next-btn");
-
-  // Check if there's another question to move to
-  if (currentQuestion < allQuestions.length - 1) {
-    currentQuestion++;
-    displayQuestion();
-  } else {
-    // Hide the next button if it's the last question
-    console.log("X");
-    nextButton.disabled = true;
-  }
+ function goToNextQuestion() {
+    const nextButton = document.getElementById("next-btn");
+    if (gameState.currentQuestion < gameState.allQuestions.length - 1) {
+        gameState.currentQuestion++;
+        displayQuestion();
+    } else {
+        nextButton.disabled = true;
+    }
 }
 
 function goToPreviousQuestion() {
-  if (currentQuestion > 0) {
-    currentQuestion--;
-    if (currentQuestion < answeredQuestions.length) {
-      displayAnsweredQuestion();
+    if (gameState.currentQuestion > 0) {
+        gameState.currentQuestion--;
+        displayAnsweredQuestion();
     }
-  }
 }
-
-
 
 function createAnsweredChoiceButton(choice, userAnswer, correctAnswer) {
-  const choiceButton = document.createElement("button");
-  choiceButton.classList.add("choice-btn");
-  choiceButton.textContent = choice;
-  choiceButton.disabled = true;
+    const choiceButton = document.createElement("button");
+    choiceButton.classList.add("choice-btn");
+    choiceButton.textContent = choice;
+    choiceButton.disabled = true;
 
-  if (choice === userAnswer) {
-    choiceButton.style.backgroundColor = choice === correctAnswer ? "green" : "red";
-    choiceButton.style.color = "white";
-  } else if (choice === correctAnswer) {
-    choiceButton.style.backgroundColor = "green";
-    choiceButton.style.color = "white";
-  }
+    if (choice === userAnswer) {
+        choiceButton.style.backgroundColor = choice === correctAnswer ? "green" : "red";
+        choiceButton.style.color = "white";
+    } else if (choice === correctAnswer) {
+        choiceButton.style.backgroundColor = "green";
+        choiceButton.style.color = "white";
+    }
 
-  return choiceButton;
+    return choiceButton;
 }
 
-
 function changeSet(event) {
-  currentSet = event.target.value;
-  allQuestions = [];
+  gameState.currentSet = event.target.value;
+  gameState.allQuestions = [];
   resetGame();
   updateExplanationText();
 }
@@ -195,25 +188,26 @@ function changeSet(event) {
 // Function to update the explanation text
 function updateExplanationText() {
   const explanationText = document.getElementById("explanation-text");
-  const selectedSet = imageSets[currentSet];
+  const selectedSet = imageSets[gameState.currentSet];
 
   displayExplanationText(explanationText, selectedSet);
 }
 
 function resetGame() {
-  currentQuestion = 0;
-  numberRight = 0;
-  numberWrong = 0;
-  answeredQuestions = [];
+    gameState.currentQuestion = 0;
+    gameState.numberRight = 0;
+    gameState.numberWrong = 0;
+    gameState.answeredQuestions = [];
+    gameState.allQuestions = [];
 
-  displayQuestion();
+    displayQuestion();
 }
 
 function endGame() {
   const gameContainer = document.getElementById("game-container");
   const scoreContainer = document.getElementById("score-container");
 
-  gameContainer.innerHTML = `<h2>You have done all the questions.</h2>     <p>Your final score: ${numberRight} / ${numberRight + numberWrong}</p>     <button onclick="resetGame()">Play Again</button>`;
+  gameContainer.innerHTML = `<h2>You have done all the questions.</h2><p>Your final score: ${gameState.numberRight} / ${gameState.numberRight + gameState.numberWrong}</p><button onclick="resetGame()">Play Again</button>`;
   scoreContainer.textContent = "";
 }
 
@@ -244,11 +238,11 @@ function initGame() {
     setDropdown.appendChild(option);
   }
 
-  setDropdown.value = currentSet;
+  setDropdown.value = gameState.currentSet;
   updateExplanationText();
 
   // Event listeners
-  setDropdown.addEventListener("change", changeSet);
+  setDropdown.addEventListener("change", gameState.changeSet);
 
   // Start the game
   displayQuestion();
@@ -257,7 +251,7 @@ function initGame() {
 // Function to show the explanation text
 function showExplanation() {
   const explanationText = document.getElementById("explanation-text");
-  const selectedSet = imageSets[currentSet];
+  const selectedSet = imageSets[gameState.currentSet];
 
   displayExplanationText(explanationText, selectedSet);
   explanationText.style.display = "block";
