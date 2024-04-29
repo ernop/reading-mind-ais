@@ -6,7 +6,6 @@ let allQuestions = [];
 let numberOfAnswerButtons = 4;
 let answeredQuestions = [];
 
-// Function to load all existing images and create an array of questions
 function loadAllQuestions() {
   const emotions = imageSets[currentSet].emotions;
 
@@ -20,7 +19,6 @@ function loadAllQuestions() {
   shuffleArray(allQuestions);
 }
 
-// Function to get random choices for the question
 function getRandomChoices(emotions, correctEmotion) {
   const choices = [correctEmotion];
   while (choices.length < numberOfAnswerButtons) {
@@ -33,7 +31,6 @@ function getRandomChoices(emotions, correctEmotion) {
   return choices;
 }
 
-// Function to shuffle an array
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -41,14 +38,13 @@ function shuffleArray(array) {
   }
 }
 
-// Function to display the question on the HTML page
 function displayQuestion() {
   const questionImage = document.getElementById("question-image");
   const choicesContainer = document.getElementById("choices-container");
   const scoreContainer = document.getElementById("score-container");
   const questionNumberContainer = document.getElementById("question-number-container");
-  const navPrevButton = document.getElementById("prev-btn");
-  const navNextButton = document.getElementById("next-nav-btn");
+  const navPrevButton = document.getElementById("archive-prev-btn");
+  const navNextButton = document.getElementById("archive-next-btn");
 
   questionNumberContainer.textContent = `Question ${currentQuestion + 1} of ${allQuestions.length}`;
   choicesContainer.innerHTML = "";
@@ -71,7 +67,6 @@ function displayQuestion() {
   img.onload = function () {
     questionImage.src = question.imagePath;
 
-    // Create answer buttons dynamically
     question.choices.forEach((choice) => {
       const choiceButton = createChoiceButton(choice, question.answer);
       choicesContainer.appendChild(choiceButton);
@@ -92,7 +87,6 @@ function displayQuestion() {
   img.src = question.imagePath;
 }
 
-// Function to create a choice button
 function createChoiceButton(choice, answer) {
   const choiceButton = document.createElement("button");
   choiceButton.classList.add("choice-btn");
@@ -106,7 +100,6 @@ function createChoiceButton(choice, answer) {
   return choiceButton;
 }
 
-// Function to check the user's answer and provide feedback
 function checkAnswer(answer, selectedButton) {
   const resultContainer = document.getElementById("result-container");
   const nextButton = document.getElementById("next-btn");
@@ -148,48 +141,48 @@ function checkAnswer(answer, selectedButton) {
   nextButton.style.display = "block";
   currentQuestion++;
   if (currentQuestion === allQuestions.length) {
-    const navNextButton = document.getElementById("next-nav-btn");
+    const navNextButton = document.getElementById("archive-next-btn");
     navNextButton.disabled = false;
   }
 }
 
-// Function to navigate to the previous question
-function previousQuestion() {
+function goToPreviousQuestion() {
   if (currentQuestion > 0) {
     currentQuestion--;
     if (currentQuestion < answeredQuestions.length) {
       displayAnsweredQuestion();
     } else {
       const resultContainer = document.getElementById("result-container");
+      const navNextButton = document.getElementById("archive-next-btn");
       resultContainer.textContent = "";
+      navNextButton.disabled = currentQuestion === answeredQuestions.length;
       displayQuestion();
     }
   }
 }
 
-// Function to navigate to the next answered question
-function nextAnsweredQuestion() {
+function goToNextAnsweredQuestion() {
   if (currentQuestion < answeredQuestions.length - 1) {
     currentQuestion++;
     displayAnsweredQuestion();
   } else {
     const resultContainer = document.getElementById("result-container");
-    const navNextButton = document.getElementById("next-nav-btn");
+    const navNextButton = document.getElementById("archive-next-btn");
     resultContainer.textContent = "";
-    navNextButton.disabled = false; // Enable the "Next" button
+    navNextButton.disabled = currentQuestion === allQuestions.length - 1;
+    currentQuestion = answeredQuestions.length;
     displayQuestion();
   }
 }
 
-// Function to display an answered question
 function displayAnsweredQuestion() {
   const questionImage = document.getElementById("question-image");
   const choicesContainer = document.getElementById("choices-container");
   const scoreContainer = document.getElementById("score-container");
   const resultContainer = document.getElementById("result-container");
   const nextButton = document.getElementById("next-btn");
-  const navPrevButton = document.getElementById("prev-btn");
-  const navNextButton = document.getElementById("next-nav-btn");
+  const navPrevButton = document.getElementById("archive-prev-btn");
+  const navNextButton = document.getElementById("archive-next-btn");
   const questionNumberContainer = document.getElementById("question-number-container");
 
   if (currentQuestion < answeredQuestions.length) {
@@ -214,8 +207,10 @@ function displayAnsweredQuestion() {
     nextButton.style.display = "none";
 
     navPrevButton.disabled = currentQuestion === 0;
-    navNextButton.disabled = currentQuestion === answeredQuestions.length - 1 && currentQuestion === allQuestions.length - 1;
+    navNextButton.disabled = currentQuestion === answeredQuestions.length - 1;
   } else {
+    const navNextButton = document.getElementById("archive-next-btn");
+    navNextButton.disabled = currentQuestion === allQuestions.length - 1;
     displayQuestion();
   }
 }
@@ -238,11 +233,10 @@ function createAnsweredChoiceButton(choice, userAnswer, correctAnswer) {
   return choiceButton;
 }
 
-// Function to handle the "next" button click
-function nextQuestion() {
+function goToNextQuestion() {
   const nextButton = document.getElementById("next-btn");
   const resultContainer = document.getElementById("result-container");
-  const navNextButton = document.getElementById("next-nav-btn");
+  const navNextButton = document.getElementById("archive-next-btn");
 
   nextButton.style.display = "none";
   resultContainer.textContent = "";
@@ -258,7 +252,6 @@ function nextQuestion() {
   }
 }
 
-// Function to handle the dropdown selection
 function changeSet(event) {
   currentSet = event.target.value;
   allQuestions = [];
@@ -300,8 +293,8 @@ function initGame() {
   const questionMark = document.getElementById("question-mark");
   const setDropdown = document.getElementById("set-dropdown");
 
-  document.getElementById("prev-btn").addEventListener("click", previousQuestion);
-  document.getElementById("next-nav-btn").addEventListener("click", nextAnsweredQuestion);
+  document.getElementById("archive-prev-btn").addEventListener("click", goToPreviousQuestion);
+  document.getElementById("archive-next-btn").addEventListener("click", goToNextAnsweredQuestion);
 
   questionMark.addEventListener('click', () => {
         if (isExplanationVisible) {
@@ -325,7 +318,7 @@ function initGame() {
   updateExplanationText();
 
   // Event listeners
-  document.getElementById("next-btn").addEventListener("click", nextQuestion);
+  document.getElementById("next-btn").addEventListener("click", goToNextQuestion);
   setDropdown.addEventListener("change", changeSet);
 
   // Start the game
