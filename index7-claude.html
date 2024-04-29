@@ -1,10 +1,187 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reading the Mind in the AI generated images</title>
-    <link rel="stylesheet" href="style.css">
+    <!--<link rel="stylesheet" href="style.css">-->
+    <style>
+        body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        font-size: 16px;
+        position: relative;
+        min-height: 100vh;
+        flex-direction: column;
+        display:flex;
+    }
+    #bottom-container {
+        margin-top: auto;
+        padding: 20px;
+        background-color: #f0f0f0;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 20px;
+    }
+
+    #left-container {
+        display: flex;
+        align-items: center;
+    }
+
+    #left-content {
+        display: flex;
+        align-items: center;
+    }
+
+    #left-content > * {
+        margin-right: 10px;
+    }
+
+    #right-container {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    #right-container > * {
+        margin-left: 10px;
+    }
+
+
+    h1 {
+        text-align: center;
+    }
+
+    #game-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    #image-container {
+        text-align: center;
+        margin-bottom: 20px;
+        min-height:200px;
+    }
+
+    #image-container img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    #choices-container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .choice-btn {
+        padding: 10px;
+        background-color: #f0f0f0;
+        border: none;
+        cursor: pointer;
+        font-size:18px;
+    }
+
+    .choice-btn:hover {
+        background-color: #e0e0e0;
+    }
+
+    #score-container {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    #result-container {
+        text-align: center;
+        margin-bottom: 10px;
+        height:20px;
+    }
+
+    #next-btn-container{
+        height:36px;
+        margin-bottom:10px;
+        display:grid;
+        grid-template-columns: 2fr auto;
+        align-items: center;
+        gap: 20px;
+    }
+
+    #next-btn, #prev-btn {
+        display: block;
+        margin: 0 auto;
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    #next-btn:hover, #prev-btn:hover {
+        background-color: #45a049;
+    }
+
+     #next-btn[disabled], #prev-btn[disabled]{
+        background-color: grey;
+        cursor:auto;
+        color:#ccc;
+    }
+
+    #set-dropdown {
+        display: block;
+        padding: 10px;
+    }
+
+    #info-container {
+      display: inline-block;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #question-number-container{
+        text-align: center;
+        margin-bottom: 10px;
+        height:20px;
+    }
+
+    #question-mark {
+      cursor: pointer;
+      font-size:2em;
+      padding:5px;
+      display:inline-block;
+      color:#ddd;
+      font-color:#ddd;
+      margin-top:-6px;
+    }
+
+    #explanation-text {
+      margin-left: 10px;
+      padding: 10px;
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    #navigation-container {
+        display: flex;
+        gap: 10px;
+    }
+
+    #navigation-container button {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    #navigation-container button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+
+</style>
 </head>
 <body>
     <h1>Reading the Mind in the AI(generated image)s</h1>
@@ -14,7 +191,8 @@
         </div>
         <div id="choices-container"></div>
         <div id="next-btn-container">
-            <button id="next-btn" style="display: none;">Next</button>
+            <button id="prev-btn" disabled>Previous</button>
+            <button id="next-btn" disabled>Next</button>
         </div>
         <div id="result-container"></div>
         <div id="score-container"></div>
@@ -31,10 +209,7 @@
         </div>
         <div id="right-container">
             <div id="question-number-container"></div>
-            <div id="navigation-container">
-                <button id="archive-prev-btn" disabled>Previous</button>
-                <button id="archive-next-btn" disabled>Next</button>
-            </div>
+
         </div>
     </div>
 

@@ -6,41 +6,42 @@ Each problem is matching an image to the right word. You will choose an image. T
 
 
     <IMAGE HERE LARGE>
-    ________________
-    |       |       |       <score area>
-    | word1 | word2 |
-    |       |       |
-    _________________
-    |       |       |
-    | word3 | word4 |
-    |       |       |
-    _________________
+    ___________________________
+    | word1 | word2 | word3 | word4 |
+    ___________________________
 
+
+   <score area>
     <results area>
-    
-Each wordN is a button the user can click. The words are randomized - there are 3 wrong ones, and one right one that matches the image. But the user isn't allowed to know which is which.
 
-The user will look at the image, then choose the word that they think matches. 
+Each wordN is a button the user can click. The words are randomized - there are 3 wrong ones, and one right one that matches the image.
+But the user isn't allowed to know which is which.
+
+The user will look at the image, then choose the word that they think matches.
 
 There is a total score counter which keeps their total score. It should say something like "N right, M wrong"
- 
+
 #What happens after they make a choice
 
-If they get it right: the output says "RIGHT". The button they clicked should turn green. The "next" button should appear.
+If they get it right: the output says "RIGHT". The button they clicked should turn green so they know the answer.
+The "next" button should be activated so they can advance.
 
-If they get it wrong: The output should say "wrong".  The actually correct button should turn green. The button they clicked should turn red.  The "next" button should appear.
+If they get it wrong: The output should say "wrong".  The actually correct emotion button should turn green.
+The button they clicked should turn red.  The "next" button should be activated so they can advance.
 
 If they click "next" we should send them to the next problem.
- 
-We should adjust the score as soon as they answer the q.
 
-When they click their answer: the "next" button shows up, which if they click, gives the next problem to them.  
+We should adjust the score as soon as they answer the q.
 
 ## Going to the next problem
 
 They can keep going on answering more problems. Every time they hit next, a new problem will be generated for them, just like the first one.
 
-There are arrows to go back/forth into the previously taken images so they can review where they were wrong. But, when they go back, they cannot adjust anything about it anymore - the buttons don't work. That is just viewing history. Only the most recent, active question lets the user interact or do anything with it.
+There are arrows to go back/forth into the previously taken questions so they can review where they were wrong. But, when they go back, they cannot adjust anything about it anymore - the buttons don't work. That is just viewing history. Only the most recent, active question lets the user interact or do anything with it.
+So, there should be a previous button available too, which is enabled when they have problems to go back to. When they're viewing the history of the past questions they answered, they cannot modify the answers.  They can just go back and forth.
+If they return (using the "next" button) to the newest problem which they haven't solved yet, then they can answer that one and continue with newer problems, and that one becomes part of their history.
+
+So, if they have ever completed any questions, the previous button shoudl always be visible and clickable. If they have completed the latest problem, adn are looking at their results, they can see the next button and click it. Or, if they are in the past reviewing previous questions, they can click the next button until they get to the latest "unsolved yet" problem. If they're on that problem, there is no "next" button since they are already at the end and have to try to answer that one, first.
 
 There is a dropdown where the user chooses the SET of images they are using. Each set is stored in a different folder. The first set is called "emotions" and is in the "emotions" folder.  The list of sets is hardcoded into the js. The other set is called "feelings". If the user chooses another set in the dropdown, we switch and change to make problems based on THAT set of images instead.
 
@@ -56,24 +57,6 @@ All the images are under /images/<SETNAME>/<emotion name>-<N>.png" I only have a
 
 You should generate an html page which allows this.  The html should link to a js file which implements the UI, logic, tracking etc. The html page should use inline css.
 
-Here are some useful methods to include, using this pattern - remember you have to check each image existing status too.
-    function loadImagesForSet(set) {
-        set.forEach(set.emotions => {
-            emotionImages[emotion] = [];
-            let i = 0;
-            while (true) {
-                const imagePath = `./images/set-name/${emotion}-${i}.png`;
-                if (checkImageExists(imagePath)) {
-                    emotionImages[emotion].push(imagePath);
-                    i++;
-                } else {
-                    break;
-                }
-            }
-        });
-    }
-
-
 First, just sketch out an overview of how you will do it briefly, and confirm with me that everything is okay, also including any questions you might have. Make sure not to create infinite loops.
 
 # Future improvements:
@@ -85,10 +68,10 @@ First, just sketch out an overview of how you will do it briefly, and confirm wi
  . use this to revalidate the real "reading the mind in the eyes" test which, while awesome, is super weird (images are really dark, girls have tons of makeup, matches of sex of person to choices given are unclear, seems likely to just have been eyeballed rather than to have actually validated the legitimacy of the associations/drawings"
  . this is also useful for the purpose of testing AI image generation software - that is, what emotions are well-labelled, which aren't?
  . it's insane that we only ever see the eye clip - how about, after you answer, you get to SEE THE WHOLE FACE?
- . these are AI generated - but can we test on real life videos that aren't staged? how about *clips from movies* to validate both if acting is actually accurate?  i.e. there are major open questions: is acting "real" in the sense of what percent of actors can actually produce fully real eye motion? How about AI gen, how good is this? 
+ . these are AI generated - but can we test on real life videos that aren't staged? how about *clips from movies* to validate both if acting is actually accurate?  i.e. there are major open questions: is acting "real" in the sense of what percent of actors can actually produce fully real eye motion? How about AI gen, how good is this?
  . reverse mode - show you an emotion, you pick the image which represents it.
- 
- 
+
+
  const imageSets = {
   //a very {WORD} woman from Perm, Russia, 1915s style photo, close up, very sharp and clear color photo, looking at camera, centered --seed 654897
   "midjourney-woman-russian": [
@@ -143,3 +126,14 @@ First, just sketch out an overview of how you will do it briefly, and confirm wi
     "horrified"
   ]
 };
+
+
+#PLAN
+
+* Fix nav and code, simplify code, finalize UIish?
+* Fix the scoring system, fixed seed, limit number of questions
+* get VS working and generate comparators
+* make UI also allow showing multiple input images
+* Make SET dropdown have a default image
+
+

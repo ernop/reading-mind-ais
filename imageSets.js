@@ -20,10 +20,20 @@ const imageSets = {
     prompt: "Taylor Swift is {word} in a clear daytime color photo looking at the camera, close up of her face, 2010, portrait, realistic, photo",
     active: true,
     emotions:"angry, bored, disgusted, exasperated, flirtatious, grateful, happy, inlove, nostalgic, pitying".split(',').map(a=>a.trim()),
-    
+
     //angry, empathetic, trusting, surprised, guilty, proud, envious, hopeful,exhausted,anxious,condescending,pompous,flirtatious,coquettish
     source:"Midjourney v6",
     date:"April 27 2024"
+  },
+"dalle3-taylor-swift": {
+    humanReadableName: "Taylor Swift (Dalle-3) (Full Portrait)",
+    prompt: "A woman who looks like Taylor Swift is {word} in a clear daytime color photo looking at the camera, close up of her face, 2010, portrait, realistic, photo",
+    active: true,
+    emotions:"angry, bored, disgusted, exasperated, flirtatious, grateful, happy, inlove, nostalgic, pitying".split(',').map(a=>a.trim()),
+
+    //angry, empathetic, trusting, surprised, guilty, proud, envious, hopeful,exhausted,anxious,condescending,pompous,flirtatious,coquettish
+    source:"Dalle-3",
+    date:"April 29 2024"
   },
    "midjourney-anime": {
     humanReadableName: "Anime Waifu (midjourney)",
@@ -34,7 +44,7 @@ const imageSets = {
     source:"Midjourney v6",
     date:"April 28 2024"
   },
-  
+
   "midjourney-woman-russian": {
     humanReadableName: "Russian Woman (1915s)",
     prompt: "a very {WORD} woman from Perm, Russia, 1915s style photo, close up, very sharp and clear color photo, looking at camera, centered --seed 654897 --ar 1:1",
