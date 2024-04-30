@@ -5,11 +5,13 @@ let gameState = {
     numberWrong: 0,
     allQuestions: [],
     answeredQuestions: [],
-    numberOfAnswerButtons: 4
+    numberOfAnswerButtons: 4,
+    isExplanationVisible: false
 };
 
 function loadAllQuestions() {
     const emotions = imageSets[gameState.currentSet].emotions;
+    gameState.allQuestions = []; // Ensure the questions list is cleared before filling
 
     for (const emotion of emotions) {
         for (let imageNumber = 0; imageNumber < 4; imageNumber++) {
@@ -148,16 +150,26 @@ function checkAnswer(answer, selectedButton) {
         }
     };
 
-    // Result logic
-    if (selectedButton.textContent === answer) {
-        resultContainer.textContent = "Correct! ";
-        selectedButton.classList.add("button-correct");
-        gameState.numberRight++;
-    } else {
-        resultContainer.textContent = "Wrong! ";
-        selectedButton.classList.add("button-wrong");
-        gameState.numberWrong++;
-    }
+    // Result logic; the pain is that you have to iterate to find the right answer too, when the user gets it wrong.
+    const buttons = document.getElementsByClassName("choice-btn");
+    Array.from(buttons).forEach(button => {
+        if (button.textContent === answer) {
+            button.classList.add("button-correct");  // Highlight correct answer
+        } else {
+            button.classList.remove("button-correct");
+        }
+
+        if (button === selectedButton) {
+            if (button.textContent === answer) {
+                resultContainer.textContent = "Correct! ";
+                gameState.numberRight++;
+            } else {
+                resultContainer.textContent = "Wrong! ";
+                button.classList.add("button-wrong");
+                gameState.numberWrong++;
+            }
+        }
+    });
 
     // Storing answered question details
     gameState.answeredQuestions[gameState.currentQuestion] = {
@@ -218,13 +230,6 @@ function createAnsweredChoiceButton(choice, userAnswer, correctAnswer) {
     return choiceButton;
 }
 
-function changeSet(event) {
-  gameState.currentSet = event.target.value;
-  gameState.allQuestions = [];
-  resetGame();
-  updateExplanationText();
-}
-
 // Function to update the explanation text
 function updateExplanationText() {
   const explanationText = document.getElementById("explanation-text");
@@ -250,7 +255,18 @@ function endGame() {
   scoreContainer.textContent = "";
 }
 
-let isExplanationVisible = false;
+
+
+function toggleExplanation() {
+    const explanationText = document.getElementById("explanation-text");
+    if (gameState.isExplanationVisible) {
+        explanationText.style.display = "none";
+        gameState.isExplanationVisible = false;
+    } else {
+        showExplanation();
+        gameState.isExplanationVisible = true;
+    }
+}
 
 function initGame() {
   const questionMark = document.getElementById("question-mark");
@@ -260,31 +276,50 @@ function initGame() {
   document.getElementById("next-btn").addEventListener("click", goToNextQuestion);
 
   questionMark.addEventListener('click', () => {
-    if (isExplanationVisible) {
+    if (gameState.isExplanationVisible) {
       hideExplanation();
-      isExplanationVisible = false;
+      gameState.isExplanationVisible = false;
     } else {
       showExplanation();
-      isExplanationVisible = true;
+      gameState.isExplanationVisible = true;
     }
   });
 
   // Populate the dropdown options dynamically from the imageSets object
-  for (const setName in imageSets) {
-    const option = document.createElement("option");
-    option.value = setName;
-    option.textContent = imageSets[setName].humanReadableName;
-    setDropdown.appendChild(option);
-  }
+  setDropdown.innerHTML = '';
+  Object.keys(imageSets).forEach(setName => {
+      const option = document.createElement("option");
+      option.value = setName;
+      option.textContent = imageSets[setName].humanReadableName; // Assuming each set has a 'humanReadableName'
+      setDropdown.appendChild(option);
+  });
 
-  setDropdown.value = gameState.currentSet;
-  updateExplanationText();
+  setDropdown.value = gameState.currentSet; // Set the current set value
 
-  // Event listeners
-  setDropdown.addEventListener("change", gameState.changeSet);
+  // Add event listeners
+  setDropdown.addEventListener("change", changeSet);
+  document.getElementById("prev-btn").addEventListener("click", goToPreviousQuestion);
+  document.getElementById("next-btn").addEventListener("click", goToNextQuestion);
+  questionMark.addEventListener('click', toggleExplanation);
 
-  // Start the game
+  // Load questions and display the first one
+  loadAllQuestions();
   displayQuestion();
+}
+
+function changeSet(event) {
+    gameState.currentSet = event.target.value; // Update current set
+
+    // Reset game state for new set
+    gameState.allQuestions = [];
+    gameState.answeredQuestions = [];
+    gameState.currentQuestion = 0;
+    gameState.numberRight = 0;
+    gameState.numberWrong = 0;
+
+    // Load questions for the new set
+    loadAllQuestions();
+    displayQuestion(); // Display the first question of the new set
 }
 
 // Function to show the explanation text
