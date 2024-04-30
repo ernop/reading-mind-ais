@@ -69,6 +69,8 @@ function updateQuestionImage(questionImage, imagePath) {
 }
 
 function displayQuestion() {
+    document.getElementById("result-container").innerHTML = ""; // Clear previous results
+
     if (gameState.allQuestions.length === 0) {
         loadAllQuestions();
     }
@@ -84,14 +86,40 @@ function displayQuestion() {
 }
 
 function displayAnsweredQuestion() {
-    const answeredQuestion = gameState.answeredQuestions[gameState.currentQuestion];
-    updateUIComponents(answeredQuestion.question, document.getElementById("choices-container"), document.getElementById("question-number-container"), document.getElementById("score-container"), document.getElementById("prev-btn"), document.getElementById("next-btn"));
-    updateQuestionImage(document.getElementById("question-image"), answeredQuestion.question.imagePath);
+  const answeredQuestion = gameState.answeredQuestions[gameState.currentQuestion];
+  document.getElementById("result-container").innerHTML = ""; // Clear previous results
 
-    answeredQuestion.question.choices.forEach((choice) => {
-        const choiceButton = createAnsweredChoiceButton(choice, answeredQuestion.userAnswer, answeredQuestion.correctAnswer);
-        document.getElementById("choices-container").appendChild(choiceButton);
-    });
+  updateUIComponents(answeredQuestion.question, document.getElementById("choices-container"), document.getElementById("question-number-container"), document.getElementById("score-container"), document.getElementById("prev-btn"), document.getElementById("next-btn"));
+  updateQuestionImage(document.getElementById("question-image"), answeredQuestion.question.imagePath);
+
+  answeredQuestion.question.choices.forEach((choice) => {
+      const choiceButton = createAnsweredChoiceButton(choice, answeredQuestion.userAnswer, answeredQuestion.correctAnswer);
+      document.getElementById("choices-container").appendChild(choiceButton);
+  });
+
+  // Displaying status directly in the result container based on previously saved answers
+  if (answeredQuestion.userAnswer === answeredQuestion.correctAnswer) {
+      document.getElementById("result-container").textContent = "Correct!";
+  } else {
+      document.getElementById("result-container").textContent = "Wrong!";
+  }
+}
+
+function createAnsweredChoiceButton(choice, userAnswer, correctAnswer) {
+    const choiceButton = document.createElement("button");
+    choiceButton.classList.add("choice-btn");
+    choiceButton.textContent = choice;
+    choiceButton.disabled = true;  // Ensure the button can't be clicked again in review mode
+
+    // Highlight the choice appropriately based on correctness
+    if (choice === userAnswer) {
+        choiceButton.classList.add(choice === correctAnswer ? "button-correct" : "button-wrong");
+    }
+    if (choice === correctAnswer && userAnswer !== correctAnswer) {
+        choiceButton.classList.add("button-correct");
+    }
+
+    return choiceButton;
 }
 
 function createChoiceButton(choice, answer) {
@@ -99,8 +127,6 @@ function createChoiceButton(choice, answer) {
     choiceButton.classList.add("choice-btn");
     choiceButton.textContent = choice;
     choiceButton.disabled = false;
-    choiceButton.style.backgroundColor = "#f0f0f0";
-    choiceButton.style.color = "black";
     choiceButton.onclick = function () {
         checkAnswer(answer, choiceButton);
     };
@@ -108,49 +134,63 @@ function createChoiceButton(choice, answer) {
 }
 
 function checkAnswer(answer, selectedButton) {
-  const resultContainer = document.getElementById("result-container");
-  const nextButton = document.getElementById("next-btn");
-  const choiceButtons = document.getElementsByClassName("choice-btn");
-  const scoreContainer = document.getElementById("score-container");
+    const resultContainer = document.getElementById("result-container");
+    resultContainer.innerHTML = "";  // Clear previous results immediately upon answer check
 
-  if (selectedButton.textContent === answer) {
-    resultContainer.textContent = "Correct!";
-    selectedButton.style.backgroundColor = "green";
-    gameState.numberRight++;
-  } else {
-    resultContainer.textContent = "Wrong!";
-    selectedButton.style.backgroundColor = "red";
-    selectedButton.style.color = "white";
-    gameState.numberWrong++;
-    Array.from(choiceButtons).forEach(button => {
-      if (button.textContent === answer) {
-        button.style.backgroundColor = "green";
-      }
+    // Create the Next Problem button
+    const nextProblemBtn = document.createElement("button");
+    nextProblemBtn.textContent = "Next Problem";
+    nextProblemBtn.classList.add("next-problem-btn");
+    nextProblemBtn.onclick = function() {
+        if (gameState.currentQuestion < gameState.allQuestions.length - 1) {
+            gameState.currentQuestion++;
+            displayQuestion();
+        }
+    };
+
+    // Result logic
+    if (selectedButton.textContent === answer) {
+        resultContainer.textContent = "Correct! ";
+        selectedButton.classList.add("button-correct");
+        gameState.numberRight++;
+    } else {
+        resultContainer.textContent = "Wrong! ";
+        selectedButton.classList.add("button-wrong");
+        gameState.numberWrong++;
+    }
+
+    // Storing answered question details
+    gameState.answeredQuestions[gameState.currentQuestion] = {
+        question: gameState.allQuestions[gameState.currentQuestion],
+        userAnswer: selectedButton.textContent,
+        correctAnswer: answer
+    };
+
+    resultContainer.appendChild(nextProblemBtn);
+    updateScore();
+    disableChoiceButtons();
+}
+
+
+function updateScore() {
+    const scoreContainer = document.getElementById("score-container");
+    scoreContainer.textContent = `Score: ${gameState.numberRight} / ${gameState.numberRight + gameState.numberWrong}`;
+}
+
+function disableChoiceButtons() {
+    Array.from(document.getElementsByClassName("choice-btn")).forEach(button => {
+        button.disabled = true;
     });
-  }
-
-  gameState.answeredQuestions[gameState.currentQuestion] = {
-    question: gameState.allQuestions[gameState.currentQuestion],
-    userAnswer: selectedButton.textContent,
-    correctAnswer: answer,
-  };
-
-  scoreContainer.textContent = `Score: ${gameState.numberRight} / ${gameState.numberRight + gameState.numberWrong}`;
-
-  Array.from(choiceButtons).forEach(button => {
-    button.disabled = true;
-  });
-
-  nextButton.disabled = false;
 }
 
  function goToNextQuestion() {
-    const nextButton = document.getElementById("next-btn");
     if (gameState.currentQuestion < gameState.allQuestions.length - 1) {
         gameState.currentQuestion++;
-        displayQuestion();
-    } else {
-        nextButton.disabled = true;
+        if (gameState.answeredQuestions[gameState.currentQuestion]) {
+            displayAnsweredQuestion();  // Show the answer status if revisiting a question
+        } else {
+            displayQuestion();  // Display normally if it's the first time answering this question
+        }
     }
 }
 
@@ -199,7 +239,6 @@ function resetGame() {
     gameState.numberWrong = 0;
     gameState.answeredQuestions = [];
     gameState.allQuestions = [];
-
     displayQuestion();
 }
 

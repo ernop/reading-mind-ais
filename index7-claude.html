@@ -88,6 +88,33 @@
         background-color: #e0e0e0;
     }
 
+    /* Correct button styling */
+    .button-correct {
+        background-color: green;
+        color: white;
+    }
+
+    /* Incorrect button styling */
+    .button-wrong {
+        background-color: red;
+        color: white;
+    }
+
+    /* Hover effects for enabled buttons */
+    .button-correct:hover, .button-wrong:hover {
+        opacity: 0.8;
+    }
+
+    /* Next problem button styling */
+    .next-problem-btn {
+        background-color: #4CAF50; /* Green color */
+        color: white;
+        padding: 10px 20px;
+        margin-top: 10px;
+        border: none;
+        cursor: pointer;
+    }
+
     #score-container {
         text-align: center;
         margin-bottom: 16px;
@@ -95,8 +122,8 @@
 
     #result-container {
         text-align: center;
-        margin-bottom: 12px;
-        height:20px;
+        margin-bottom: 35px;
+        height:40px;
     }
 
     #next-btn-container{
@@ -114,21 +141,18 @@
         display: block;
         margin: 0 auto;
         padding: 10px 20px;
-        background-color: #4CAF50;
-        color: white;
         border: none;
         cursor: pointer;
         font-size:10px;
     }
 
-    #next-btn:hover, #prev-btn:hover {
+    #next-btn[enabled]:hover, #prev-btn[enabled]:hover {
         background-color: #45a049;
     }
 
      #next-btn[disabled], #prev-btn[disabled]{
-        background-color: grey;
         cursor:auto;
-        color:#ccc;
+        color:black;
     }
 
     #set-dropdown {
@@ -196,10 +220,7 @@
 
         <div id="result-container"></div>
         <div id="score-container"></div>
-        <div id="next-btn-container">
-            <button id="prev-btn" disabled>Previous</button>
-            <button id="next-btn" disabled>Next</button>
-        </div>
+
     </div>
     <div id="bottom-container">
         <div id="left-container">
@@ -212,6 +233,10 @@
             </div>
         </div>
         <div id="right-container">
+                <div id="next-btn-container">
+                    <button id="prev-btn" disabled>Previous</button>
+                    <button id="next-btn" disabled>Next</button>
+                </div>
             <div id="question-number-container"></div>
 
         </div>
