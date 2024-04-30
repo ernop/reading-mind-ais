@@ -1,20 +1,19 @@
 let gameState = {
-    currentSet: "midjourney-audrey-hepburn",
+    currentSet: "",
     currentQuestion: 0,
     numberRight: 0,
     numberWrong: 0,
     allQuestions: [],
     answeredQuestions: [],
     numberOfAnswerButtons: 4,
-    isExplanationVisible: false
-};
+    isExplanationVisible: false};
 
 function loadAllQuestions() {
     const emotions = imageSets[gameState.currentSet].emotions;
-    gameState.allQuestions = []; // Ensure the questions list is cleared before filling
+    gameState.allQuestions = [];
 
     for (const emotion of emotions) {
-        for (let imageNumber = 0; imageNumber < 4; imageNumber++) {
+        for (let imageNumber = 0; imageNumber < imageSets[gameState.currentSet].daily_puzzle_size / emotions.length; imageNumber++) {
             const imagePath = `./images/${gameState.currentSet}/${emotion.replace(' ', '')}${imageNumber}.png`;
             const choices = getRandomChoices(emotions, emotion);
             gameState.allQuestions.push({ imagePath, choices, answer: emotion });
@@ -26,24 +25,29 @@ function loadAllQuestions() {
 function getRandomChoices(emotions, correctEmotion) {
     const choices = [correctEmotion];
     while (choices.length < gameState.numberOfAnswerButtons) {
-        const randomChoice = emotions[Math.floor(Math.random() * emotions.length)];
-        if (!choices.includes(randomChoice)) {
-            choices.push(randomChoice);
-        }
+      const xx = getNextRandom();
+      const randomChoice = emotions[Math.floor(xx * emotions.length)];
+      if (!choices.includes(randomChoice)) {
+        choices.push(randomChoice);
+      }
     }
     shuffleArray(choices);
     return choices;
 }
 
 function shuffleArray(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
+    let m = array.length, t, i;
+    while (m) {
+        i = Math.floor(getNextRandom() * m--);
+        t = array[m];
+        array[m] = array[i];
+        array[i] = t;
+    }
 }
 
 function updateUIComponents(question, choicesContainer, questionNumberContainer, scoreContainer, prevButton, nextButton) {
-    questionNumberContainer.textContent = `Question ${gameState.currentQuestion + 1} of ${gameState.allQuestions.length}`;
+    const totalQuestions = Math.min(gameState.allQuestions.length, imageSets[gameState.currentSet].daily_puzzle_size);
+    questionNumberContainer.textContent = `Question ${gameState.currentQuestion + 1} of ${totalQuestions}`;
     choicesContainer.innerHTML = "";
     scoreContainer.textContent = `Score: ${gameState.numberRight} / ${gameState.numberRight + gameState.numberWrong}`;
     updateButtonsState(prevButton, nextButton);
@@ -269,55 +273,64 @@ function toggleExplanation() {
 }
 
 function initGame() {
-  const questionMark = document.getElementById("question-mark");
-  const setDropdown = document.getElementById("set-dropdown");
+    const setDropdown = document.getElementById("set-dropdown");
+    setDropdown.innerHTML = '';
 
-  document.getElementById("prev-btn").addEventListener("click", goToPreviousQuestion);
-  document.getElementById("next-btn").addEventListener("click", goToNextQuestion);
+   Object.keys(imageSets).forEach(setName => {
+        if (imageSets[setName].active) {
+            const option = document.createElement("option");
+            option.value = setName;
+            option.textContent = imageSets[setName].humanReadableName;
+            setDropdown.appendChild(option);
+        }
+    });
 
-  questionMark.addEventListener('click', () => {
-    if (gameState.isExplanationVisible) {
-      hideExplanation();
-      gameState.isExplanationVisible = false;
-    } else {
-      showExplanation();
-      gameState.isExplanationVisible = true;
-    }
-  });
+    // Automatically set and load the first active set
+    setDropdown.selectedIndex = 0;
+    changeSet(setDropdown.value);
 
-  // Populate the dropdown options dynamically from the imageSets object
-  setDropdown.innerHTML = '';
-  Object.keys(imageSets).forEach(setName => {
-      const option = document.createElement("option");
-      option.value = setName;
-      option.textContent = imageSets[setName].humanReadableName; // Assuming each set has a 'humanReadableName'
-      setDropdown.appendChild(option);
-  });
-
-  setDropdown.value = gameState.currentSet; // Set the current set value
-
-  // Add event listeners
-  setDropdown.addEventListener("change", changeSet);
-  document.getElementById("prev-btn").addEventListener("click", goToPreviousQuestion);
-  document.getElementById("next-btn").addEventListener("click", goToNextQuestion);
-  questionMark.addEventListener('click', toggleExplanation);
-
-  // Load questions and display the first one
-  loadAllQuestions();
-  displayQuestion();
+    setDropdown.addEventListener("change", function(event) {
+        changeSet(event.target.value);
+    });
 }
 
-function changeSet(event) {
-    gameState.currentSet = event.target.value; // Update current set
+function handleSetChange(event) {
+    gameState.currentSet = event.target.value;
+    setSeed();
+    changeSet();
+}
 
-    // Reset game state for new set
+
+//put a this-set-specific random replacement into gamestate so its not random every time.
+function setSeed() {
+  //~ const daysSince1970 = Math.floor(Date.now() / 86400000);
+  //~ const seed=daysSince1970+gameState.currentSet
+  //~ let tmp = new SeededRandom(seed);
+  //~ debugger;
+  //~ gameState.guy = new SeededRandom(seed);
+}
+
+const modulus = 2**31 - 1; // Large prime number as modulus
+const multiplier = 48271;  // Common choice for the multiplier
+const increment = 0;       // Typically zero
+
+let seed=100;
+
+function getNextRandom(){
+  seed = (multiplier * seed + increment) % modulus;
+  return seed / modulus;
+}
+
+function changeSet(set) {
+    gameState.currentSet = set;
     gameState.allQuestions = [];
     gameState.answeredQuestions = [];
     gameState.currentQuestion = 0;
     gameState.numberRight = 0;
     gameState.numberWrong = 0;
 
-    // Load questions for the new set
+    setSeed();
+
     loadAllQuestions();
     displayQuestion(); // Display the first question of the new set
 }
@@ -343,5 +356,7 @@ function hideExplanation() {
   explanationText.style.display = "none";
 }
 
-// Start the game
-initGame();
+
+window.onload = function() {
+    initGame();
+};

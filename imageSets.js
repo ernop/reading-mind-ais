@@ -5,7 +5,8 @@ const imageSets = {
     active: true,
     emotions:"calm,flirtatious,curious,hostile,irritated,ashamed,aggressive,bored,confused".split(',').map(a=>a.trim()),
     source:"Midjourney v6",
-    date:"April 27 2024"
+    date:"April 27 2024",
+    daily_puzzle_size:20,
   },
   "midjourney-audrey-hepburn": {
     humanReadableName: "Audrey Hepburn (in Midjourney)",
@@ -13,7 +14,8 @@ const imageSets = {
     active: true,
     emotions:"in love,happy,sad,fearful, angry, empathetic, trusting, grateful, surprised, guilty, proud, envious, disgusted, hopeful,exhausted,anxious,bored,condescending,pompous,flirtatious,coquettish".split(',').map(a=>a.trim()),
     source:"Midjourney v6",
-    date:"April 27 2024"
+    date:"April 27 2024",
+    daily_puzzle_size:20,
   },
   "ideogram-taylor-swift-magic-off": {
     humanReadableName: "Taylor Swift (Ideogram.ai)",
@@ -23,7 +25,8 @@ const imageSets = {
 
     //angry, empathetic, trusting, surprised, guilty, proud, envious, hopeful,exhausted,anxious,condescending,pompous,flirtatious,coquettish
     source:"Midjourney v6",
-    date:"April 27 2024"
+    date:"April 27 2024",
+    daily_puzzle_size:20,
   },
 "dalle3-taylor-swift": {
     humanReadableName: "Taylor Swift (Dalle-3) (Full Portrait)",
@@ -33,7 +36,8 @@ const imageSets = {
 
     //angry, empathetic, trusting, surprised, guilty, proud, envious, hopeful,exhausted,anxious,condescending,pompous,flirtatious,coquettish
     source:"Dalle-3",
-    date:"April 29 2024"
+    date:"April 29 2024",
+    daily_puzzle_size:20,
   },
    "midjourney-anime": {
     humanReadableName: "Anime Waifu (midjourney)",
@@ -42,7 +46,8 @@ const imageSets = {
     emotions:"calm,flirtatious,curious,hostile,irritated,ashamed,aggressive,bored,confused,in love,happy,sad,fearful, angry, empathetic, trusting, grateful, surprised, guilty, proud, envious, disgusted, hopeful,exhausted,anxious,bored,condescending,pompous,flirtatious,coquettish".split(',').map(a=>a.trim()),
 
     source:"Midjourney v6",
-    date:"April 28 2024"
+    date:"April 28 2024",
+    daily_puzzle_size:20,
   },
 
   "midjourney-woman-russian": {
@@ -52,6 +57,7 @@ const imageSets = {
     emotions:"affectionate,aggressive,angry,anxious,ashamed,awed,bored,calm,compassionate,confused,contented,curious,delighted,flirtatious,guilty,hateful,hopeful,horrified,hostile,humiliated,interested,irritated,jealous,joking".split(',').map(a=>a.trim()),
     //disappointed, hungry, sleepy, exhausted, anxious, bored, condescending, pompous, flirtatious, coquettish, lonely, motherly, determined, hopeless
     source:"Midjourney v6",
-    date:"April 27 2024"
+    date:"April 27 2024",
+    daily_puzzle_size:20,
   }
 };
