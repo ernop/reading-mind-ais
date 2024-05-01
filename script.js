@@ -16,26 +16,48 @@ let gameState = {
     seed:-1
 };
 
-let imageSets = { "dalle3-taylor-swift": {
-    humanReadableName: "Taylor Swift (Dalle-3) (Full Portrait)",
-    prompt: "A woman who looks like Taylor Swift is {word} in a clear daytime color photo looking at the camera, close up of her face, 2010, portrait, realistic, photo",
-    active: true,
-    emotions:"angry, bored, disgusted, exasperated, flirtatious, grateful, happy, inlove, nostalgic, pitying".split(',').map(a=>a.trim()),
+// this should only contain stuff that's literally just done once.  most functions of the page actually relate to the specific SET we are doing, so don't do that kind of thing here.
+async function initGame() {
+    const setDropdown = document.getElementById("set-dropdown");
+    setDropdown.innerHTML = '';
 
-    //angry, empathetic, trusting, surprised, guilty, proud, envious, hopeful,exhausted,anxious,condescending,pompous,flirtatious,coquettish
-    source:"Dalle-3",
-    date:"April 29 2024",
-    daily_puzzle_size:20,
-  },
-  "midjourney-audrey-hepburn": {
-    humanReadableName: "Audrey Hepburn (in Midjourney)",
-    prompt: "Audrey Hepburn is {WORD} in a clear daytime color photo from 1960 looking at the camera. --ar 1:1 --seed 789789",
-    active: true,
-    emotions:"in love,happy,sad,fearful, angry, empathetic, trusting, grateful, surprised, guilty, proud, envious, disgusted, hopeful,exhausted,anxious,bored,condescending,pompous,flirtatious,coquettish".split(',').map(a=>a.trim()),
-    source:"Midjourney v6",
-    date:"April 27 2024",
-    daily_puzzle_size:20,
-  } }
+   Object.keys(imageSets).forEach(setName => {
+        if (imageSets[setName].active) {
+            const option = document.createElement("option");
+            option.value = setName;
+            option.textContent = imageSets[setName].humanReadableName;
+            setDropdown.appendChild(option);
+        }
+    });
+
+    // Automatically set and load the first active set
+    setDropdown.selectedIndex = 0;
+    await changeSet(setDropdown.value);
+
+    setDropdown.addEventListener("change", function(event) {
+        changeSet(event.target.value);
+    });
+}
+
+// every set should be totally independent. so you can swap between sets and pick up where you left off and stuff like that.
+//really, then, the way this is now, it reloads every time. but it would be cool if the page had more of a state so you could do 5 questions, then switch sets, then continue back again.
+async function changeSet(set) {
+    gameState.currentSet = set;
+    gameState.allQuestions = [];
+    gameState.answeredQuestions = [];
+    gameState.currentQuestion = 0;
+    gameState.numberRight = 0;
+    gameState.numberWrong = 0;
+    let seed = await setSeed();
+    gameState.seed = seed;
+    if (isNaN(gameState.seed)) {
+        console.error("Invalid seed");
+        return;
+    }
+    loadAllQuestions();
+    displayQuestion(); // Display the first question of the new set
+    setupButtonListeners();
+}
 
 function loadAllQuestions() {
     const questions = imageSets[gameState.currentSet].emotions;
@@ -51,55 +73,24 @@ function loadAllQuestions() {
     shuffleArray(gameState, gameState.allQuestions);
 }
 
-function getRandomChoices(gameState, questions, correctAnswer) {
-    const choices = [correctAnswer];
-    while (choices.length < gameState.numberOfAnswerButtons) {
-      const xx = getNextRandom(gameState);
-      const randomChoice = questions[Math.floor(xx * questions.length)];
-      if (!choices.includes(randomChoice)) {
-        choices.push(randomChoice);
-      }
-    }
-    shuffleArray(gameState, choices);
-    return choices;
+
+//put a this-set-specific random replacement into gamestate so its not random every time.
+async function setSeed() {
+    const daysSince1970 = Math.floor(Date.now() / 86400000);
+    return await stringToRandomNumber(daysSince1970 + gameState.currentSet);
+}
+async function stringToRandomNumber(string) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(string);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const seed = hashArray.reduce((sum, byte) => (sum * 256 + byte) % modulus, 0);
+    return seed;
 }
 
-function shuffleArray(gameState, array) {
-    let m = array.length, t, i;
-    while (m) {
-        i = Math.floor(getNextRandom(gameState) * m--);
-        t = array[m];
-        array[m] = array[i];
-        array[i] = t;
-    }
-}
-
-function updateUIComponents(question, choicesContainer, questionNumberContainer, scoreContainer, prevButton, nextButton) {
-    //we artificially pretend that there is a max number of questions, even if we have noticed that technically there are more available combos of emotions+0-3
-    const totalQuestions = Math.min(gameState.allQuestions.length, imageSets[gameState.currentSet].daily_puzzle_size);
-    questionNumberContainer.textContent = `Question ${gameState.currentQuestion + 1} of ${totalQuestions}`;
-    choicesContainer.innerHTML = "";
-    scoreContainer.textContent = `Score: ${gameState.numberRight} / ${gameState.numberRight + gameState.numberWrong}`;
-    prevButton.disabled = gameState.currentQuestion === 0;
-    //console.log("preButton disable state:",prevButton.disabled);
-    nextButton.disabled = gameState.currentQuestion >= gameState.answeredQuestions.length;
-    //console.log("nextButton disable state:",nextButton.disabled, gameState.currentQuestion, gameState.answeredQuestions);
-}
-
-function updateQuestionImage(questionImage, imagePath) {
-    const img = new Image();
-    img.onload = function () {
-        questionImage.src = imagePath;
-    };
-    img.onerror = function () {
-        gameState.allQuestions.splice(gameState.currentQuestion, 1);
-        if (gameState.currentQuestion >= gameState.allQuestions.length) {
-            endGame();
-        } else {
-            displayQuestion();
-        }
-    };
-    img.src = imagePath;
+function getNextRandom(gameState){
+  gameState.seed = (multiplier * gameState.seed + increment) % modulus;
+  return gameState.seed / modulus;
 }
 
 function displayQuestion() {
@@ -118,44 +109,32 @@ function displayQuestion() {
         document.getElementById("choices-container").appendChild(choiceButton);
     });
 }
-
-function displayAnsweredQuestion() {
-  const answeredQuestion = gameState.answeredQuestions[gameState.currentQuestion];
-  document.getElementById("result-container").innerHTML = ""; // Clear previous results
-
-  updateUIComponents(answeredQuestion.question, document.getElementById("choices-container"), document.getElementById("question-number-container"), document.getElementById("score-container"), document.getElementById("prev-btn"), document.getElementById("next-btn"));
-  updateQuestionImage(document.getElementById("question-image"), answeredQuestion.question.imagePath);
-
-  answeredQuestion.question.choices.forEach((choice) => {
-      const choiceButton = createAnsweredChoiceButton(choice, answeredQuestion.userAnswer, answeredQuestion.correctAnswer);
-      document.getElementById("choices-container").appendChild(choiceButton);
-  });
-
-  // Displaying status directly in the result container based on previously saved answers
-  if (answeredQuestion.userAnswer === answeredQuestion.correctAnswer) {
-      document.getElementById("result-container").textContent = "Correct!";
-  } else {
-      document.getElementById("result-container").textContent = "Wrong!";
-  }
+function updateQuestionImage(questionImage, imagePath) {
+    const img = new Image();
+    img.onload = function () {
+        questionImage.src = imagePath;
+    };
+    img.onerror = function () {
+        gameState.allQuestions.splice(gameState.currentQuestion, 1);
+        if (gameState.currentQuestion >= gameState.allQuestions.length) {
+            endGame();
+        } else {
+            displayQuestion();
+        }
+    };
+    img.src = imagePath;
 }
-
-function createAnsweredChoiceButton(choice, userAnswer, correctAnswer) {
-    const choiceButton = document.createElement("button");
-    choiceButton.classList.add("choice-btn");
-    choiceButton.textContent = choice;
-    choiceButton.disabled = true;  // Ensure the button can't be clicked again in review mode
-
-    // Highlight the choice appropriately based on correctness
-    if (choice === userAnswer) {
-        choiceButton.classList.add(choice === correctAnswer ? "button-correct" : "button-wrong");
-    }
-    if (choice === correctAnswer && userAnswer !== correctAnswer) {
-        choiceButton.classList.add("button-correct");
-    }
-
-    return choiceButton;
+function updateUIComponents(question, choicesContainer, questionNumberContainer, scoreContainer, prevButton, nextButton) {
+    //we artificially pretend that there is a max number of questions, even if we have noticed that technically there are more available combos of emotions+0-3
+    const totalQuestions = Math.min(gameState.allQuestions.length, imageSets[gameState.currentSet].daily_puzzle_size);
+    questionNumberContainer.textContent = `Question ${gameState.currentQuestion + 1} of ${totalQuestions}`;
+    choicesContainer.innerHTML = "";
+    scoreContainer.textContent = `Score: ${gameState.numberRight} / ${gameState.numberRight + gameState.numberWrong}`;
+    prevButton.disabled = gameState.currentQuestion === 0;
+    //console.log("preButton disable state:",prevButton.disabled);
+    nextButton.disabled = gameState.currentQuestion >= gameState.answeredQuestions.length;
+    //console.log("nextButton disable state:",nextButton.disabled, gameState.currentQuestion, gameState.answeredQuestions);
 }
-
 function createChoiceButton(choice, answer) {
     const choiceButton = document.createElement("button");
     choiceButton.classList.add("choice-btn");
@@ -166,7 +145,6 @@ function createChoiceButton(choice, answer) {
     };
     return choiceButton;
 }
-
 function checkAnswer(answer, selectedButton) {
     const resultContainer = document.getElementById("result-container");
     resultContainer.innerHTML = "";  // Clear previous results immediately upon answer check
@@ -214,20 +192,41 @@ function checkAnswer(answer, selectedButton) {
     updateScore();
     disableChoiceButtons();
 }
+function displayAnsweredQuestion() {
+  const answeredQuestion = gameState.answeredQuestions[gameState.currentQuestion];
+  document.getElementById("result-container").innerHTML = ""; // Clear previous results
 
+  updateUIComponents(answeredQuestion.question, document.getElementById("choices-container"), document.getElementById("question-number-container"), document.getElementById("score-container"), document.getElementById("prev-btn"), document.getElementById("next-btn"));
+  updateQuestionImage(document.getElementById("question-image"), answeredQuestion.question.imagePath);
 
-function updateScore() {
-    const scoreContainer = document.getElementById("score-container");
-    scoreContainer.textContent = `Score: ${gameState.numberRight} / ${gameState.numberRight + gameState.numberWrong}`;
+  answeredQuestion.question.choices.forEach((choice) => {
+      const choiceButton = createAnsweredChoiceButton(choice, answeredQuestion.userAnswer, answeredQuestion.correctAnswer);
+      document.getElementById("choices-container").appendChild(choiceButton);
+  });
+
+  // Displaying status directly in the result container based on previously saved answers
+  if (answeredQuestion.userAnswer === answeredQuestion.correctAnswer) {
+      document.getElementById("result-container").textContent = "Correct!";
+  } else {
+      document.getElementById("result-container").textContent = "Wrong!";
+  }
 }
+function createAnsweredChoiceButton(choice, userAnswer, correctAnswer) {
+    const choiceButton = document.createElement("button");
+    choiceButton.classList.add("choice-btn");
+    choiceButton.textContent = choice;
+    choiceButton.disabled = true;
 
-function disableChoiceButtons() {
-    Array.from(document.getElementsByClassName("choice-btn")).forEach(button => {
-        button.disabled = true;
-    });
+    if (choice === userAnswer) {
+        choiceButton.classList.add(choice === correctAnswer ? "button-correct" : "button-wrong");
+    }
+    if (choice === correctAnswer && userAnswer !== correctAnswer) {
+        choiceButton.classList.add("button-correct");
+    }
+
+    return choiceButton;
 }
-
- function goToNextQuestion() {
+function goToNextQuestion() {
     if (gameState.currentQuestion < gameState.allQuestions.length - 1) {
         gameState.currentQuestion++;
         if (gameState.answeredQuestions[gameState.currentQuestion]) {
@@ -237,39 +236,12 @@ function disableChoiceButtons() {
         }
     }
 }
-
 function goToPreviousQuestion() {
     if (gameState.currentQuestion > 0) {
         gameState.currentQuestion--;
         displayAnsweredQuestion();
     }
 }
-
-function createAnsweredChoiceButton(choice, userAnswer, correctAnswer) {
-    const choiceButton = document.createElement("button");
-    choiceButton.classList.add("choice-btn");
-    choiceButton.textContent = choice;
-    choiceButton.disabled = true;
-
-    if (choice === userAnswer) {
-        choiceButton.style.backgroundColor = choice === correctAnswer ? "green" : "red";
-        choiceButton.style.color = "white";
-    } else if (choice === correctAnswer) {
-        choiceButton.style.backgroundColor = "green";
-        choiceButton.style.color = "white";
-    }
-
-    return choiceButton;
-}
-
-// Function to update the explanation text
-function updateExplanationText() {
-  const explanationText = document.getElementById("explanation-text");
-  const selectedSet = imageSets[gameState.currentSet];
-
-  displayExplanationText(explanationText, selectedSet);
-}
-
 function resetGame() {
     gameState.currentQuestion = 0;
     gameState.numberRight = 0;
@@ -278,7 +250,6 @@ function resetGame() {
     gameState.allQuestions = [];
     displayQuestion();
 }
-
 function endGame() {
   const gameContainer = document.getElementById("game-container");
   const scoreContainer = document.getElementById("score-container");
@@ -286,95 +257,54 @@ function endGame() {
   gameContainer.innerHTML = `<h2>You have done all the questions.</h2><p>Your final score: ${gameState.numberRight} / ${gameState.numberRight + gameState.numberWrong}</p><button onclick="resetGame()">Play Again</button>`;
   scoreContainer.textContent = "";
 }
-
-
-
 function toggleExplanation() {
     const explanationText = document.getElementById("explanation-text");
     if (gameState.isExplanationVisible) {
         explanationText.style.display = "none";
         gameState.isExplanationVisible = false;
     } else {
-        showExplanation();
+        const explanationText = document.getElementById("explanation-text");
+        const selectedSet = imageSets[gameState.currentSet];
+
+        displayExplanationText(explanationText, selectedSet);
+        explanationText.style.display = "block";
         gameState.isExplanationVisible = true;
     }
 }
-
-// this should only contain stuff that's literally just done once.  most functions of the page actually relate to the specific SET we are doing, so don't do that kind of thing here.
-async function initGame() {
-    const setDropdown = document.getElementById("set-dropdown");
-    setDropdown.innerHTML = '';
-
-   Object.keys(imageSets).forEach(setName => {
-        if (imageSets[setName].active) {
-            const option = document.createElement("option");
-            option.value = setName;
-            option.textContent = imageSets[setName].humanReadableName;
-            setDropdown.appendChild(option);
-        }
-    });
-
-    // Automatically set and load the first active set
-    setDropdown.selectedIndex = 0;
-    await changeSet(setDropdown.value);
-
-    setDropdown.addEventListener("change", function(event) {
-        changeSet(event.target.value);
+// Function to display the explanation text
+function displayExplanationText(explanationText, selectedSet) {
+  explanationText.innerHTML = `<strong>SET:</strong> ${selectedSet.humanReadableName}<br>     <strong>Prompt:</strong> ${selectedSet.prompt}<br>     <strong>Emotions:</strong> ${selectedSet.emotions.join(", ")}<br>     <strong>Source:</strong> ${selectedSet.source}<br>     <strong>Date:</strong> ${selectedSet.date}`;
+}
+function updateScore() {
+    const scoreContainer = document.getElementById("score-container");
+    scoreContainer.textContent = `Score: ${gameState.numberRight} / ${gameState.numberRight + gameState.numberWrong}`;
+}
+function disableChoiceButtons() {
+    Array.from(document.getElementsByClassName("choice-btn")).forEach(button => {
+        button.disabled = true;
     });
 }
-
-//put a this-set-specific random replacement into gamestate so its not random every time.
-async function setSeed() {
-    const daysSince1970 = Math.floor(Date.now() / 86400000);
-    return await stringToRandomNumber(daysSince1970 + gameState.currentSet);
-}
-
-async function stringToRandomNumber(string) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(string);
-
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const numericValue = hashArray.reduce((result, byte) => (result << 8) + byte, 0);
-
-  return numericValue;
-}
-
-function getNextRandom(gameState){
-  gameState.seed = (multiplier * gameState.seed + increment) % modulus;
-  return gameState.seed / modulus;
-}
-
-async function stringToRandomNumber(string) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(string);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const seed = hashArray.reduce((sum, byte) => (sum * 256 + byte) % modulus, 0);
-    return seed;
-}
-
-
-// every set should be totally independent. so you can swap between sets and pick up where you left off and stuff like that.
-//really, then, the way this is now, it reloads every time. but it would be cool if the page had more of a state so you could do 5 questions, then switch sets, then continue back again.
-async function changeSet(set) {
-    gameState.currentSet = set;
-    gameState.allQuestions = [];
-    gameState.answeredQuestions = [];
-    gameState.currentQuestion = 0;
-    gameState.numberRight = 0;
-    gameState.numberWrong = 0;
-    let seed = await setSeed();
-    gameState.seed = seed;
-    if (isNaN(gameState.seed)) {
-        console.error("Invalid seed");
-        return;
+function shuffleArray(gameState, array) {
+    let m = array.length, t, i;
+    while (m) {
+        i = Math.floor(getNextRandom(gameState) * m--);
+        t = array[m];
+        array[m] = array[i];
+        array[i] = t;
     }
-    loadAllQuestions();
-    displayQuestion(); // Display the first question of the new set
-    setupButtonListeners();
 }
-
+function getRandomChoices(gameState, questions, correctAnswer) {
+    const choices = [correctAnswer];
+    while (choices.length < gameState.numberOfAnswerButtons) {
+      const xx = getNextRandom(gameState);
+      const randomChoice = questions[Math.floor(xx * questions.length)];
+      if (!choices.includes(randomChoice)) {
+        choices.push(randomChoice);
+      }
+    }
+    shuffleArray(gameState, choices);
+    return choices;
+}
 function setupButtonListeners() {
     const prevButton = document.getElementById('prev-btn');
     const nextButton = document.getElementById('next-btn');
@@ -382,28 +312,6 @@ function setupButtonListeners() {
     prevButton.onclick = goToPreviousQuestion;
     nextButton.onclick = goToNextQuestion;
 }
-
-// Function to show the explanation text
-function showExplanation() {
-  const explanationText = document.getElementById("explanation-text");
-  const selectedSet = imageSets[gameState.currentSet];
-
-  displayExplanationText(explanationText, selectedSet);
-  explanationText.style.display = "block";
-}
-
-// Function to display the explanation text
-function displayExplanationText(explanationText, selectedSet) {
-  explanationText.innerHTML = `<strong>SET:</strong> ${selectedSet.humanReadableName}<br>     <strong>Prompt:</strong> ${selectedSet.prompt}<br>     <strong>Emotions:</strong> ${selectedSet.emotions.join(", ")}<br>     <strong>Source:</strong> ${selectedSet.source}<br>     <strong>Date:</strong> ${selectedSet.date}`;
-}
-
-// Function to hide the explanation text
-function hideExplanation() {
-  const explanationText = document.getElementById("explanation-text");
-  explanationText.innerHTML = "";
-  explanationText.style.display = "none";
-}
-
 
 window.onload = function() {
     initGame();
