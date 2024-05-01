@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reading the Mind in the AI generated images</title>
+    <link href="lib/select2.min.css" rel="stylesheet" />
+    <script src="lib/jquery-3.6.0.min.js"></script>
+    <script src="lib/select2.min.js"></script>
     <script src="imageSets.js"></script>
     <script src="script.js"></script>
     <style>
@@ -210,6 +213,17 @@
         background-color: #ccc;
         cursor: not-allowed;
     }
+
+    .select2-results__option img, .select2-selection__rendered img {
+        vertical-align: middle;
+        height: 25px !important;
+        width: auto !important;
+        position: relative;
+        top: -2px;
+    }
+    .select2-container {
+    width: 540px !important; /* Replace 300px with whatever width you desire */
+}
 
 </style>
 </head>

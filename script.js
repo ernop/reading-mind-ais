@@ -20,23 +20,43 @@ let gameState = {
 async function initGame() {
     const setDropdown = document.getElementById("set-dropdown");
     setDropdown.innerHTML = '';
+    document.getElementById('question-mark').addEventListener('click', toggleExplanation);
 
-   Object.keys(imageSets).forEach(setName => {
-        if (imageSets[setName].active) {
-            const option = document.createElement("option");
-            option.value = setName;
-            option.textContent = imageSets[setName].humanReadableName;
-            setDropdown.appendChild(option);
-        }
+   for (const setName of Object.keys(imageSets)) {
+        const set = imageSets[setName];
+        if (!set.active) continue;
+        const emotion = set.emotions[0]; // Assuming first emotion's image is representative
+        const imagePath = `./images/${setName}/${emotion.replace(' ', '')}0.png`; // Correctly accounting for potential spaces
+
+        // Creating a new option element
+        const option = new Option(set.humanReadableName, setName, false, false);
+        option.dataset.icon = imagePath;
+        setDropdown.add(option);
+    }
+
+
+    // Initialize Select2 and attach event listener within the same block
+    $(setDropdown).select2({
+        templateResult: formatOptionWithImage,
+        templateSelection: formatOptionWithImage
+    })
+
+  // Attach the event listener for Select2
+    $(setDropdown).on('select2:select', function (e) {
+        changeSet(e.params.data.id);
     });
 
-    // Automatically set and load the first active set
-    setDropdown.selectedIndex = 0;
-    await changeSet(setDropdown.value);
+    // Manually call changeSet for the first item
+    if (setDropdown.options.length > 0) {
+        changeSet(setDropdown.options[setDropdown.selectedIndex].value);
+    }
+}
 
-    setDropdown.addEventListener("change", function(event) {
-        changeSet(event.target.value);
-    });
+function formatOptionWithImage(option) {
+  if (!option.id) return option.text; // adjust for placeholder if necessary
+  var imagePath = $(option.element).data('icon');
+  var $option = $('<span><img src="' + imagePath + '" style="height:20px; width:20px; margin-right:10px;"/> ' + option.text + '</span>');
+  return $option;
 }
 
 // every set should be totally independent. so you can swap between sets and pick up where you left off and stuff like that.
