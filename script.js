@@ -1,3 +1,9 @@
+//for the seeded random thing later tracked within gameState.
+
+const modulus = 2**31 - 1; // Large prime number as modulus
+const multiplier = 48271;  // Common choice for the multiplier
+const increment = 0;       // Typically zero
+
 let gameState = {
     currentSet: "",
     currentQuestion: 0,
@@ -6,39 +12,62 @@ let gameState = {
     allQuestions: [],
     answeredQuestions: [],
     numberOfAnswerButtons: 4,
-    isExplanationVisible: false};
+    isExplanationVisible: false,
+    seed:-1
+};
+
+let imageSets = { "dalle3-taylor-swift": {
+    humanReadableName: "Taylor Swift (Dalle-3) (Full Portrait)",
+    prompt: "A woman who looks like Taylor Swift is {word} in a clear daytime color photo looking at the camera, close up of her face, 2010, portrait, realistic, photo",
+    active: true,
+    emotions:"angry, bored, disgusted, exasperated, flirtatious, grateful, happy, inlove, nostalgic, pitying".split(',').map(a=>a.trim()),
+
+    //angry, empathetic, trusting, surprised, guilty, proud, envious, hopeful,exhausted,anxious,condescending,pompous,flirtatious,coquettish
+    source:"Dalle-3",
+    date:"April 29 2024",
+    daily_puzzle_size:20,
+  },
+  "midjourney-audrey-hepburn": {
+    humanReadableName: "Audrey Hepburn (in Midjourney)",
+    prompt: "Audrey Hepburn is {WORD} in a clear daytime color photo from 1960 looking at the camera. --ar 1:1 --seed 789789",
+    active: true,
+    emotions:"in love,happy,sad,fearful, angry, empathetic, trusting, grateful, surprised, guilty, proud, envious, disgusted, hopeful,exhausted,anxious,bored,condescending,pompous,flirtatious,coquettish".split(',').map(a=>a.trim()),
+    source:"Midjourney v6",
+    date:"April 27 2024",
+    daily_puzzle_size:20,
+  } }
 
 function loadAllQuestions() {
-    const emotions = imageSets[gameState.currentSet].emotions;
+    const questions = imageSets[gameState.currentSet].emotions;
     gameState.allQuestions = [];
 
-    for (const emotion of emotions) {
-        for (let imageNumber = 0; imageNumber < imageSets[gameState.currentSet].daily_puzzle_size / emotions.length; imageNumber++) {
-            const imagePath = `./images/${gameState.currentSet}/${emotion.replace(' ', '')}${imageNumber}.png`;
-            const choices = getRandomChoices(emotions, emotion);
-            gameState.allQuestions.push({ imagePath, choices, answer: emotion });
+    for (const question of questions) {
+        for (let imageNumber = 0; imageNumber < imageSets[gameState.currentSet].daily_puzzle_size / questions .length; imageNumber++) {
+            const imagePath = `./images/${gameState.currentSet}/${question.replace(' ', '')}${imageNumber}.png`;
+            const choices = getRandomChoices(gameState, questions, question);
+            gameState.allQuestions.push({ imagePath, choices, answer: question});
         }
     }
-    shuffleArray(gameState.allQuestions);
+    shuffleArray(gameState, gameState.allQuestions);
 }
 
-function getRandomChoices(emotions, correctEmotion) {
-    const choices = [correctEmotion];
+function getRandomChoices(gameState, questions, correctAnswer) {
+    const choices = [correctAnswer];
     while (choices.length < gameState.numberOfAnswerButtons) {
-      const xx = getNextRandom();
-      const randomChoice = emotions[Math.floor(xx * emotions.length)];
+      const xx = getNextRandom(gameState);
+      const randomChoice = questions[Math.floor(xx * questions.length)];
       if (!choices.includes(randomChoice)) {
         choices.push(randomChoice);
       }
     }
-    shuffleArray(choices);
+    shuffleArray(gameState, choices);
     return choices;
 }
 
-function shuffleArray(array) {
+function shuffleArray(gameState, array) {
     let m = array.length, t, i;
     while (m) {
-        i = Math.floor(getNextRandom() * m--);
+        i = Math.floor(getNextRandom(gameState) * m--);
         t = array[m];
         array[m] = array[i];
         array[i] = t;
@@ -46,16 +75,15 @@ function shuffleArray(array) {
 }
 
 function updateUIComponents(question, choicesContainer, questionNumberContainer, scoreContainer, prevButton, nextButton) {
+    //we artificially pretend that there is a max number of questions, even if we have noticed that technically there are more available combos of emotions+0-3
     const totalQuestions = Math.min(gameState.allQuestions.length, imageSets[gameState.currentSet].daily_puzzle_size);
     questionNumberContainer.textContent = `Question ${gameState.currentQuestion + 1} of ${totalQuestions}`;
     choicesContainer.innerHTML = "";
     scoreContainer.textContent = `Score: ${gameState.numberRight} / ${gameState.numberRight + gameState.numberWrong}`;
-    updateButtonsState(prevButton, nextButton);
-}
-
-function updateButtonsState(prevButton, nextButton) {
     prevButton.disabled = gameState.currentQuestion === 0;
+    //console.log("preButton disable state:",prevButton.disabled);
     nextButton.disabled = gameState.currentQuestion >= gameState.answeredQuestions.length;
+    //console.log("nextButton disable state:",nextButton.disabled, gameState.currentQuestion, gameState.answeredQuestions);
 }
 
 function updateQuestionImage(questionImage, imagePath) {
@@ -272,7 +300,8 @@ function toggleExplanation() {
     }
 }
 
-function initGame() {
+// this should only contain stuff that's literally just done once.  most functions of the page actually relate to the specific SET we are doing, so don't do that kind of thing here.
+async function initGame() {
     const setDropdown = document.getElementById("set-dropdown");
     setDropdown.innerHTML = '';
 
@@ -287,52 +316,71 @@ function initGame() {
 
     // Automatically set and load the first active set
     setDropdown.selectedIndex = 0;
-    changeSet(setDropdown.value);
+    await changeSet(setDropdown.value);
 
     setDropdown.addEventListener("change", function(event) {
         changeSet(event.target.value);
     });
 }
 
-function handleSetChange(event) {
-    gameState.currentSet = event.target.value;
-    setSeed();
-    changeSet();
-}
-
-
 //put a this-set-specific random replacement into gamestate so its not random every time.
-function setSeed() {
-  //~ const daysSince1970 = Math.floor(Date.now() / 86400000);
-  //~ const seed=daysSince1970+gameState.currentSet
-  //~ let tmp = new SeededRandom(seed);
-  //~ debugger;
-  //~ gameState.guy = new SeededRandom(seed);
+async function setSeed() {
+    const daysSince1970 = Math.floor(Date.now() / 86400000);
+    return await stringToRandomNumber(daysSince1970 + gameState.currentSet);
 }
 
-const modulus = 2**31 - 1; // Large prime number as modulus
-const multiplier = 48271;  // Common choice for the multiplier
-const increment = 0;       // Typically zero
+async function stringToRandomNumber(string) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(string);
 
-let seed=100;
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const numericValue = hashArray.reduce((result, byte) => (result << 8) + byte, 0);
 
-function getNextRandom(){
-  seed = (multiplier * seed + increment) % modulus;
-  return seed / modulus;
+  return numericValue;
 }
 
-function changeSet(set) {
+function getNextRandom(gameState){
+  gameState.seed = (multiplier * gameState.seed + increment) % modulus;
+  return gameState.seed / modulus;
+}
+
+async function stringToRandomNumber(string) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(string);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const seed = hashArray.reduce((sum, byte) => (sum * 256 + byte) % modulus, 0);
+    return seed;
+}
+
+
+// every set should be totally independent. so you can swap between sets and pick up where you left off and stuff like that.
+//really, then, the way this is now, it reloads every time. but it would be cool if the page had more of a state so you could do 5 questions, then switch sets, then continue back again.
+async function changeSet(set) {
     gameState.currentSet = set;
     gameState.allQuestions = [];
     gameState.answeredQuestions = [];
     gameState.currentQuestion = 0;
     gameState.numberRight = 0;
     gameState.numberWrong = 0;
-
-    setSeed();
-
+    let seed = await setSeed();
+    gameState.seed = seed;
+    if (isNaN(gameState.seed)) {
+        console.error("Invalid seed");
+        return;
+    }
     loadAllQuestions();
     displayQuestion(); // Display the first question of the new set
+    setupButtonListeners();
+}
+
+function setupButtonListeners() {
+    const prevButton = document.getElementById('prev-btn');
+    const nextButton = document.getElementById('next-btn');
+
+    prevButton.onclick = goToPreviousQuestion;
+    nextButton.onclick = goToNextQuestion;
 }
 
 // Function to show the explanation text

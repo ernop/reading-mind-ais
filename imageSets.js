@@ -1,4 +1,4 @@
-const imageSets = {
+const imageSetsA = {
   "midjourney-man-british":{
     humanReadableName: "English Man 30yo in 1980 london (1915s)",
     prompt: "a {WORD} white man, 30 years old, in 1980 London, close up, clear, outdoor photograph, subject in center frame, 3/4 profile, subject looking at camera --ar 3:2 --seed 654987",
