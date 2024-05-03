@@ -7,7 +7,7 @@ const imageSets = {
     //disappointed, hungry, sleepy, exhausted, anxious, bored, condescending, pompous, flirtatious, coquettish, lonely, motherly, determined, hopeless
     source:"Midjourney v6",
     date:"April 27 2024",
-    daily_puzzle_size:20,
+    daily_puzzle_size:1,
   },
 "midjourney-man-british":{
     humanReadableName: "English Man 30yo in 1980 london (1915s)",

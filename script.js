@@ -116,8 +116,10 @@ function getNextRandom(gameState){
 function displayQuestion() {
     document.getElementById("result-container").innerHTML = ""; // Clear previous results
 
-    if (gameState.allQuestions.length === 0) {
-        loadAllQuestions();
+    // Check if all questions have been answered or if the daily limit is reached
+    if (gameState.currentQuestion >= gameState.allQuestions.length || gameState.currentQuestion >= imageSets[gameState.currentSet].daily_puzzle_size) {
+        endGame();
+        return; // Stop further execution
     }
 
     const question = gameState.allQuestions[gameState.currentQuestion];
@@ -129,6 +131,8 @@ function displayQuestion() {
         document.getElementById("choices-container").appendChild(choiceButton);
     });
 }
+
+
 function updateQuestionImage(questionImage, imagePath) {
     const img = new Image();
     img.onload = function () {
@@ -256,12 +260,14 @@ function goToNextQuestion() {
         }
     }
 }
+
 function goToPreviousQuestion() {
     if (gameState.currentQuestion > 0) {
         gameState.currentQuestion--;
         displayAnsweredQuestion();
     }
 }
+
 function resetGame() {
     gameState.currentQuestion = 0;
     gameState.numberRight = 0;
@@ -270,13 +276,50 @@ function resetGame() {
     gameState.allQuestions = [];
     displayQuestion();
 }
-function endGame() {
-  const gameContainer = document.getElementById("game-container");
-  const scoreContainer = document.getElementById("score-container");
 
-  gameContainer.innerHTML = `<h2>You have done all the questions.</h2><p>Your final score: ${gameState.numberRight} / ${gameState.numberRight + gameState.numberWrong}</p><button onclick="resetGame()">Play Again</button>`;
-  scoreContainer.textContent = "";
+function endGame() {
+    const resultContainer = document.getElementById("result-container");
+    const totalQuestions = gameState.numberRight + gameState.numberWrong;
+    const expectedRandomScore = Math.round(1.0 * totalQuestions / gameState.numberOfAnswerButtons); // Assuming random guessing would get 25% correct
+    const today = new Date();
+    const dayOfWeek = today.toLocaleDateString('en-US', { weekday: 'long' });
+
+    // Append the final score and additional information directly in the result container
+    resultContainer.innerHTML += `
+        <h2>Congratulations! You've completed the quiz.</h2>
+        <p>Your final score: ${gameState.numberRight} / ${totalQuestions}.</p>
+        <p>Random guessing would have scored approximately ${expectedRandomScore} / ${totalQuestions}.</p>
+        <p>Generated on: ${today.toLocaleDateString()} (${dayOfWeek})</p>
+        <p>There are other sets to play in the lower left.
+        <div id="countdown-container"></div>
+    `;
+
+    calculateCountdown();
+    disableAllNavigation(false); // Optionally disable navigation if you do not want users navigating back
 }
+
+function disableAllNavigation(enable) {
+    const prevButton = document.getElementById('prev-btn');
+    const nextButton = document.getElementById('next-btn');
+
+    // Enable or disable navigation buttons based on the passed parameter
+    prevButton.disabled = !enable;
+    nextButton.disabled = !enable;
+}
+
+function calculateCountdown() {
+    const now = new Date();
+    const utcMidnight = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
+    const localMidnight = new Date(utcMidnight.toLocaleString());
+    const msUntilMidnight = localMidnight - now;
+
+    const hours = Math.floor(msUntilMidnight / 3600000);
+    const minutes = Math.floor((msUntilMidnight % 3600000) / 60000);
+
+    const countdownContainer = document.getElementById("countdown-container");
+    countdownContainer.innerHTML = `Next set available in: ${hours} hours and ${minutes} minutes.`;
+}
+
 function toggleExplanation() {
     const explanationText = document.getElementById("explanation-text");
     if (gameState.isExplanationVisible) {
