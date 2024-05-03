@@ -1,4 +1,14 @@
 const imageSets = {
+   "midjourney-anime": {
+    humanReadableName: "Anime Waifu (midjourney)",
+    prompt: "A {word} facial expression on an anime waifu, facing camera, facial portrait",
+    active: true,
+    emotions:"calm,flirtatious,curious,hostile,irritated,ashamed,aggressive,bored,confused,in love,happy,sad,fearful, angry, empathetic, trusting, grateful, surprised, guilty, proud, envious, disgusted, hopeful,exhausted,anxious,bored,condescending,pompous,flirtatious,coquettish".split(',').map(a=>a.trim()),
+    source:"Midjourney v6",
+    date:"April 28 2024",
+    daily_puzzle_size:20,
+    numberOfAnswerButtons: 4,
+  },
 "midjourney-woman-russian": {
     humanReadableName: "Russian Woman (1915s)",
     prompt: "a very {WORD} woman from Perm, Russia, 1915s style photo, close up, very sharp and clear color photo, looking at camera, centered --seed 654897 --ar 1:1",
@@ -8,6 +18,7 @@ const imageSets = {
     source:"Midjourney v6",
     date:"April 27 2024",
     daily_puzzle_size:1,
+    numberOfAnswerButtons: 4
   },
 "midjourney-man-british":{
     humanReadableName: "English Man 30yo in 1980 london (1915s)",
@@ -17,6 +28,7 @@ const imageSets = {
     source:"Midjourney v6",
     date:"April 27 2024",
     daily_puzzle_size:20,
+    numberOfAnswerButtons: 3,
   },
   "midjourney-audrey-hepburn": {
     humanReadableName: "Audrey Hepburn (in Midjourney)",
@@ -26,6 +38,7 @@ const imageSets = {
     source:"Midjourney v6",
     date:"April 27 2024",
     daily_puzzle_size:20,
+    numberOfAnswerButtons: 4,
   },
   "ideogram-taylor-swift-magic-off": {
     humanReadableName: "Taylor Swift (Ideogram.ai)",
@@ -37,6 +50,7 @@ const imageSets = {
     source:"Midjourney v6",
     date:"April 27 2024",
     daily_puzzle_size:20,
+    numberOfAnswerButtons: 4,
   },
 "dalle3-taylor-swift": {
     humanReadableName: "Taylor Swift (Dalle-3) (Full Portrait)",
@@ -48,16 +62,18 @@ const imageSets = {
     source:"Dalle-3",
     date:"April 29 2024",
     daily_puzzle_size:20,
+    numberOfAnswerButtons: 4,
   },
-   "midjourney-anime": {
-    humanReadableName: "Anime Waifu (midjourney)",
+
+  "midjourney-anime-hard": {
+    humanReadableName: "Anime Waifu (midjourney), 8 choices",
     prompt: "A {word} facial expression on an anime waifu, facing camera, facial portrait",
     active: true,
-    emotions:"calm,flirtatious,curious,hostile,irritated,ashamed,aggressive,bored,confused,in love,happy,sad,fearful, angry, empathetic, trusting, grateful, surprised, guilty, proud, envious, disgusted, hopeful,exhausted,anxious,bored,condescending,pompous,flirtatious,coquettish".split(',').map(a=>a.trim()),
-
+    emotions:"flirtatious,calm,curious,hostile,irritated,ashamed,aggressive,bored,confused,in love,happy,sad,fearful, angry, empathetic, trusting, grateful, surprised, guilty, proud, envious, disgusted, hopeful,exhausted,anxious,bored,condescending,pompous,flirtatious,coquettish".split(',').map(a=>a.trim()),
     source:"Midjourney v6",
     date:"April 28 2024",
     daily_puzzle_size:20,
+    numberOfAnswerButtons: 8,
   },
 
 

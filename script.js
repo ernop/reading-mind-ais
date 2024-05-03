@@ -4,17 +4,9 @@ const modulus = 2**31 - 1; // Large prime number as modulus
 const multiplier = 48271;  // Common choice for the multiplier
 const increment = 0;       // Typically zero
 
-let gameState = {
-    currentSet: "",
-    currentQuestion: 0,
-    numberRight: 0,
-    numberWrong: 0,
-    allQuestions: [],
-    answeredQuestions: [],
-    numberOfAnswerButtons: 4,
-    isExplanationVisible: false,
-    seed:-1
-};
+let gameStates = {}
+let gameState=  {};
+let currentSet = "";
 
 // this should only contain stuff that's literally just done once.  most functions of the page actually relate to the specific SET we are doing, so don't do that kind of thing here.
 async function initGame() {
@@ -32,6 +24,25 @@ async function initGame() {
         const option = new Option(set.humanReadableName, setName, false, false);
         option.dataset.icon = imagePath;
         setDropdown.add(option);
+      // Initialize gameState for each set
+        if (!gameStates[setName]) {
+            let seed = await setSeed(); // do this here since we only ever want to initialize each set's seed once per page load.
+            gameStates[setName] = {
+                currentSet: setName,
+                currentQuestion: 0,
+                numberRight: 0,
+                numberWrong: 0,
+                allQuestions: [],
+                answeredQuestions: [],
+                isExplanationVisible: false,
+                seed: seed
+            };
+
+            if (isNaN(gameStates[setName].seed)) {
+                console.error("Invalid seed");
+                return;
+            }
+        }
     }
 
 
@@ -61,19 +72,9 @@ function formatOptionWithImage(option) {
 
 // every set should be totally independent. so you can swap between sets and pick up where you left off and stuff like that.
 //really, then, the way this is now, it reloads every time. but it would be cool if the page had more of a state so you could do 5 questions, then switch sets, then continue back again.
-async function changeSet(set) {
-    gameState.currentSet = set;
-    gameState.allQuestions = [];
-    gameState.answeredQuestions = [];
-    gameState.currentQuestion = 0;
-    gameState.numberRight = 0;
-    gameState.numberWrong = 0;
-    let seed = await setSeed();
-    gameState.seed = seed;
-    if (isNaN(gameState.seed)) {
-        console.error("Invalid seed");
-        return;
-    }
+async function changeSet(setName) {
+    //just dump this into globals.
+    gameState=gameStates[setName];
     loadAllQuestions();
     displayQuestion(); // Display the first question of the new set
     setupButtonListeners();
@@ -84,7 +85,7 @@ function loadAllQuestions() {
     gameState.allQuestions = [];
 
     for (const question of questions) {
-        for (let imageNumber = 0; imageNumber < imageSets[gameState.currentSet].daily_puzzle_size / questions .length; imageNumber++) {
+        for (let imageNumber = 0; imageNumber < imageSets[gameState.currentSet].daily_puzzle_size / questions.length; imageNumber++) {
             const imagePath = `./images/${gameState.currentSet}/${question.replace(' ', '')}${imageNumber}.png`;
             const choices = getRandomChoices(gameState, questions, question);
             gameState.allQuestions.push({ imagePath, choices, answer: question});
@@ -99,6 +100,7 @@ async function setSeed() {
     const daysSince1970 = Math.floor(Date.now() / 86400000);
     return await stringToRandomNumber(daysSince1970 + gameState.currentSet);
 }
+
 async function stringToRandomNumber(string) {
     const encoder = new TextEncoder();
     const data = encoder.encode(string);
@@ -159,16 +161,45 @@ function updateUIComponents(question, choicesContainer, questionNumberContainer,
     nextButton.disabled = gameState.currentQuestion >= gameState.answeredQuestions.length;
     //console.log("nextButton disable state:",nextButton.disabled, gameState.currentQuestion, gameState.answeredQuestions);
 }
+
 function createChoiceButton(choice, answer) {
     const choiceButton = document.createElement("button");
     choiceButton.classList.add("choice-btn");
     choiceButton.textContent = choice;
     choiceButton.disabled = false;
+
     choiceButton.onclick = function () {
+        if (choiceButton.classList.contains("excluded")){
+            return;
+        }
         checkAnswer(answer, choiceButton);
     };
+    choiceButton.addEventListener('contextmenu', function (event) {
+        event.preventDefault(); // Prevent the default context menu
+        event.stopPropagation();
+        choiceButton.classList.toggle("excluded");
+        updateRestoreButtonVisibility();
+
+        //code to restore the #restoreButton and make it clickable so it would show all the hidden .choice-button divs, and then hide itself again, if it weren't already clickable to do that.
+    //so, its not visible at first, just pops up whenever you exclude a choice.
+        return false; // Prevent default context menu
+    }, false);
     return choiceButton;
 }
+
+function updateRestoreButtonVisibility() {
+    let restoreButton = document.getElementById("restore-button");
+    restoreButton.onclick = function(e){
+        document.querySelectorAll('.choice-btn.excluded').forEach(button => {
+        button.classList.remove("excluded");
+        let restoreButton = document.getElementById("restore-button");
+        restoreButton.style.display="none";
+    });
+    }
+    restoreButton.style.display = "block";
+
+}
+
 function checkAnswer(answer, selectedButton) {
     const resultContainer = document.getElementById("result-container");
     resultContainer.innerHTML = "";  // Clear previous results immediately upon answer check
@@ -280,7 +311,7 @@ function resetGame() {
 function endGame() {
     const resultContainer = document.getElementById("result-container");
     const totalQuestions = gameState.numberRight + gameState.numberWrong;
-    const expectedRandomScore = Math.round(1.0 * totalQuestions / gameState.numberOfAnswerButtons); // Assuming random guessing would get 25% correct
+    const expectedRandomScore = Math.round(1.0 * totalQuestions / imageSets[gameState.currentSet].numberOfAnswerButtons); // Assuming random guessing would get 25% correct
     const today = new Date();
     const dayOfWeek = today.toLocaleDateString('en-US', { weekday: 'long' });
 
@@ -358,7 +389,7 @@ function shuffleArray(gameState, array) {
 }
 function getRandomChoices(gameState, questions, correctAnswer) {
     const choices = [correctAnswer];
-    while (choices.length < gameState.numberOfAnswerButtons) {
+    while (choices.length < imageSets[gameState.currentSet].numberOfAnswerButtons) {
       const xx = getNextRandom(gameState);
       const randomChoice = questions[Math.floor(xx * questions.length)];
       if (!choices.includes(randomChoice)) {

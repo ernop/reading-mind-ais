@@ -78,6 +78,7 @@
         grid-template-columns: repeat(4, 1fr);
         gap: 10px;
         margin-bottom: 12px;
+         z-index: 100;
     }
 
     .choice-btn {
@@ -224,6 +225,19 @@
     .select2-container {
         width: 540px !important;
     }
+
+    .choice-btn.excluded {
+        display:none;
+        text-decoration: line-through; /* Strike through text */
+        font-size:12px;
+        opactiy:0.4;
+    }
+      #restore-button {
+        position: fixed; // Example: make it fixed on the page
+        bottom: 20px;
+        right: 20px;
+        display: none; // Hidden by default
+    }
 }
 
 </style>
@@ -234,7 +248,9 @@
         <div id="image-container">
             <img id="question-image" src="" alt="Question Image">
         </div>
-        <div id="choices-container"></div>
+        <div id="choices-container">
+
+        </div><div id="restore-button">(restore answers)</div>
 
         <div id="score-container"></div>
         <div id="result-container"></div>
