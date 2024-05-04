@@ -27,7 +27,7 @@ async function initGame() {
         setDropdown.add(option);
       // Initialize gameState for each set
         if (!gameStates[setName]) {
-            let seed = await setSeed(); // do this here since we only ever want to initialize each set's seed once per page load.
+
             gameStates[setName] = {
                 currentSet: setName,
                 currentQuestion: 0,
@@ -35,9 +35,8 @@ async function initGame() {
                 numberWrong: 0,
                 allQuestions: [],
                 answeredQuestions: [],
-                seed: seed
+                seed: await getSeed(setName)
             };
-
             if (isNaN(gameStates[setName].seed)) {
                 console.error("Invalid seed");
                 return;
@@ -98,24 +97,26 @@ function loadAllQuestions() {
 
 
 //put a this-set-specific random replacement into gamestate so its not random every time.
-async function setSeed() {
+async function getSeed(s) {
     const daysSince1970 = Math.floor(Date.now() / 86400000);
-    return await stringToRandomNumber(daysSince1970 + gameState.currentSet);
+    return await stringToRandomNumber(daysSince1970 + s);
 }
 
-async function stringToRandomNumber(string) {
-    return 123;
-    const encoder = new TextEncoder();
-    const data = encoder.encode(string);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const seed = hashArray.reduce((sum, byte) => (sum * 256 + byte) % modulus, 0);
+function stringToRandomNumber(string) {
+    let hash = 0;
+    for (let i = 0; i < string.length; i++) {
+        const char = string.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char; // Bitwise left shift
+        hash = hash & hash; // Convert to 32bit integer
+    }
 
-    return seed;
+    const res = Math.abs(hash % modulus); // Ensure it's within the range of the modulus
+    return res;
 }
 
 function getNextRandom(gameState){
   gameState.seed = (multiplier * gameState.seed + increment) % modulus;
+    //~ console.write("seed from gNR:",gameState.seed);
   return gameState.seed / modulus;
 }
 
