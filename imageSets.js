@@ -20,6 +20,17 @@ const imageSets = {
     daily_puzzle_size:40,
     numberOfAnswerButtons: 4,
   },
+"dalle3-NOH-masks":{
+  humanReadableName: "1k NOH masks",
+    prompt: "a variety of prompts, sometimes asking for detailed, sometimes minimal, sometimes wood etc.",
+    active: true,
+    emotions:"aggressive, aloof, anguished, ambitious, angry, anxious, ashamed, astonished, awed, bored, calm, cautious, condescending, confused, contented, curious, determined, diligent, disgusted, ecstatic, empathetic, encouraging, enlightened, envious, exhausted, exhilarated, fascinated, fearful, foolish, forgiving, flirtatious, frustrated, giddy, gloomy, grateful, greedy, grieving, guilty, happy, hopeful, horrified, hostile, humiliated, impatient, in love, indignant, inspired, intimidated, irritated, jealous, lonely, loyal, melancholic, mischievous, mournful, oblivious, overwhelmed, passionate, perplexed, pitiful, pompous, proud, regretful, relieved, remorseful, resentful, restless, reverent, sad, serene, skeptical, stressed, surprised, sympathetic, transcendent, triumphant, trusting, uneasy, vulnerable, wistful, yearning".split(',').map(a=>a.trim()),
+    special_icon: "icon.png",
+    source:"Dalle 3",
+    date:"May 4 2024",
+    daily_puzzle_size:30,
+    numberOfAnswerButtons: 4,
+  },
 "midjourney-woman-russian": {
     humanReadableName: "Russian Woman (1915s)",
     prompt: "a very {WORD} woman from Perm, Russia, 1915s style photo, close up, very sharp and clear color photo, looking at camera, centered --seed 654897 --ar 1:1",
@@ -80,8 +91,6 @@ const imageSets = {
     prompt: "Taylor Swift has {word} on her face in a clear daytime photo at the beach while swimming, close up face photo, looking at the camera, she is 21 years old in 2010",
     active: true,
     emotions:"aggressive, aloof, angry, arrogant, bored, disgusted, embarrassed, empathetic, exasperated, fearful, guilty, happy, hostile, incredulous, inlove, sad, sarcastic, silly, surprised".split(',').map(a=>a.trim()),
-
-    //angry, empathetic, trusting, surprised, guilty, proud, envious, hopeful,exhausted,anxious,condescending,pompous,flirtatious,coquettish
     source:"Midjourney v6",
     date:"April 27 2024",
     daily_puzzle_size:20,
@@ -92,8 +101,6 @@ const imageSets = {
     prompt: "A woman who looks exactly like Taylor Swift is WORD in a clear daytime color photo looking at the camera, close up of her face, age 21, portrait, realistic, photo",
     active: true,
     emotions:"Anguished, Ashamed, Ecstatic, Empathetic, Exhausted, Exhilarated, Fearful, Forgiving, Grieving, Guilty, Happy, Horrified, Humiliated, In love, Indignant, Inspired, Jealous, Lonely, Melancholic, Sad".split(',').map(a=>a.trim()),
-
-    //angry, empathetic, trusting, surprised, guilty, proud, envious, hopeful,exhausted,anxious,condescending,pompous,flirtatious,coquettish
     source:"Dalle-3",
     date:"April 29 2024",
     daily_puzzle_size:20,
@@ -104,8 +111,6 @@ const imageSets = {
     prompt: "A woman who looks exactly like Taylor Swift is WORD in a clear daytime color photo looking at the camera, close up of her face, age 21, portrait, realistic, photo [eye location found via dlib]",
     active: true,
     emotions:"Anguished, Ashamed, Ecstatic, Empathetic, Exhausted, Exhilarated, Fearful, Forgiving, Grieving, Guilty, Happy, Horrified, Humiliated, In love, Indignant, Inspired, Jealous, Lonely, Melancholic, Sad".split(',').map(a=>a.trim()),
-
-    //angry, empathetic, trusting, surprised, guilty, proud, envious, hopeful,exhausted,anxious,condescending,pompous,flirtatious,coquettish
     source:"Dalle-3",
     date:"April 29 2024",
     daily_puzzle_size:20,

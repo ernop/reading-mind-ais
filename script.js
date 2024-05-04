@@ -139,6 +139,7 @@ function displayQuestion() {
     updateQuestionImage(document.getElementById("question-image"), question.imagePath);
     updateUIComponents(question, document.getElementById("choices-container"), document.getElementById("question-number-container"), document.getElementById("score-container"), document.getElementById("prev-btn"), document.getElementById("next-btn"));
 
+    question.choices.sort();
     question.choices.forEach((choice) => {
         const choiceButton = createChoiceButton(choice, question.answer);
         document.getElementById("choices-container").appendChild(choiceButton);
@@ -391,19 +392,23 @@ function toggleExplanation() {
         isExplanationVisible = true;
     }
 }
+
 // Function to display the explanation text
 function displayExplanationText(explanationText, selectedSet) {
   explanationText.innerHTML = `<strong>SET:</strong> ${selectedSet.humanReadableName}<br>     <strong>Prompt:</strong> ${selectedSet.prompt}<br>     <strong>Emotions:</strong> ${selectedSet.emotions.join(", ")}<br>     <strong>Source:</strong> ${selectedSet.source}<br>     <strong>Date:</strong> ${selectedSet.date}`;
 }
+
 function updateScore() {
     const scoreContainer = document.getElementById("score-container");
     scoreContainer.textContent = `Score: ${gameState.numberRight} / ${gameState.numberRight + gameState.numberWrong}`;
 }
+
 function disableChoiceButtons() {
     Array.from(document.getElementsByClassName("choice-btn")).forEach(button => {
         button.disabled = true;
     });
 }
+
 function shuffleArray(gameState, array) {
     let m = array.length, t, i;
     while (m) {
@@ -413,18 +418,19 @@ function shuffleArray(gameState, array) {
         array[i] = t;
     }
 }
+
 function getRandomChoices(gameState, questions, correctAnswer) {
     const choices = [correctAnswer];
     while (choices.length < imageSets[gameState.currentSet].numberOfAnswerButtons) {
-      const xx = getNextRandom(gameState);
-      const randomChoice = questions[Math.floor(xx * questions.length)];
+      const randomChoice = questions[Math.floor(getNextRandom(gameState) * questions.length)];
       if (!choices.includes(randomChoice)) {
         choices.push(randomChoice);
       }
     }
-    shuffleArray(gameState, choices);
+
     return choices;
 }
+
 function setupButtonListeners() {
     const prevButton = document.getElementById('prev-btn');
     const nextButton = document.getElementById('next-btn');
