@@ -89,7 +89,7 @@
         font-size:18px;
     }
 
-    .choice-btn:hover {
+    .choice-btn:not([disabled]):hover {
         background-color: #e0e0e0;
     }
 
@@ -105,10 +105,6 @@
         color: white;
     }
 
-    /* Hover effects for enabled buttons */
-    .button-correct:hover, .button-wrong:hover {
-        opacity: 0.8;
-    }
 
     /* Next problem button styling */
     .next-problem-btn {

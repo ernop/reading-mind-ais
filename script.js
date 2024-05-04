@@ -6,6 +6,7 @@ const increment = 0;       // Typically zero
 
 let gameStates = {}
 let gameState=  {};
+let isExplanationVisible=false;
 let currentSet = "";
 
 // this should only contain stuff that's literally just done once.  most functions of the page actually relate to the specific SET we are doing, so don't do that kind of thing here.
@@ -34,7 +35,6 @@ async function initGame() {
                 numberWrong: 0,
                 allQuestions: [],
                 answeredQuestions: [],
-                isExplanationVisible: false,
                 seed: seed
             };
 
@@ -73,11 +73,11 @@ function formatOptionWithImage(option) {
 // every set should be totally independent. so you can swap between sets and pick up where you left off and stuff like that.
 //really, then, the way this is now, it reloads every time. but it would be cool if the page had more of a state so you could do 5 questions, then switch sets, then continue back again.
 async function changeSet(setName) {
-    //just dump this into globals.
     gameState=gameStates[setName];
     loadAllQuestions();
-    displayQuestion(); // Display the first question of the new set
+    displayQuestion();
     setupButtonListeners();
+    updateRestoreButtonVisibility()
 }
 
 function loadAllQuestions() {
@@ -85,6 +85,8 @@ function loadAllQuestions() {
     gameState.allQuestions = [];
 
     for (const question of questions) {
+        //ah, we try to load up to "daily puzzle size" images for each filename type?
+        //that's not bad I guess. then we shuffle and kill missing ones later.
         for (let imageNumber = 0; imageNumber < imageSets[gameState.currentSet].daily_puzzle_size / questions.length; imageNumber++) {
             const imagePath = `./images/${gameState.currentSet}/${question.replace(' ', '')}${imageNumber}.png`;
             const choices = getRandomChoices(gameState, questions, question);
@@ -102,11 +104,13 @@ async function setSeed() {
 }
 
 async function stringToRandomNumber(string) {
+    return 123;
     const encoder = new TextEncoder();
     const data = encoder.encode(string);
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const seed = hashArray.reduce((sum, byte) => (sum * 256 + byte) % modulus, 0);
+
     return seed;
 }
 
@@ -121,35 +125,66 @@ function displayQuestion() {
     // Check if all questions have been answered or if the daily limit is reached
     if (gameState.currentQuestion >= gameState.allQuestions.length || gameState.currentQuestion >= imageSets[gameState.currentSet].daily_puzzle_size) {
         endGame();
-        return; // Stop further execution
+        return;
     }
 
     const question = gameState.allQuestions[gameState.currentQuestion];
-    updateUIComponents(question, document.getElementById("choices-container"), document.getElementById("question-number-container"), document.getElementById("score-container"), document.getElementById("prev-btn"), document.getElementById("next-btn"));
+    //lets test the image first, so that we don't spuriously swap out the questions even when the image is going to die anyway.
     updateQuestionImage(document.getElementById("question-image"), question.imagePath);
+    updateUIComponents(question, document.getElementById("choices-container"), document.getElementById("question-number-container"), document.getElementById("score-container"), document.getElementById("prev-btn"), document.getElementById("next-btn"));
 
     question.choices.forEach((choice) => {
         const choiceButton = createChoiceButton(choice, question.answer);
         document.getElementById("choices-container").appendChild(choiceButton);
     });
+
 }
 
 
 function updateQuestionImage(questionImage, imagePath) {
     const img = new Image();
-    img.onload = function () {
-        questionImage.src = imagePath;
+    img.onload = function() {
+        questionImage.src = this.src; // Set the image only after it has loaded successfully
+        preloadImages(); // Start preloading next images
     };
-    img.onerror = function () {
-        gameState.allQuestions.splice(gameState.currentQuestion, 1);
+
+    img.onerror = function() {
+        // Handle the case where the image can't load
+        gameState.allQuestions.splice(gameState.currentQuestion, 1); // Remove the invalid question
         if (gameState.currentQuestion >= gameState.allQuestions.length) {
-            endGame();
+            endGame(); // End the game if there are no more questions
         } else {
-            displayQuestion();
+            displayQuestion(); // Display the next question
         }
+        //we only lookahead when we have success, cause in the failure case the whole updateQI will be called again anyway.
     };
-    img.src = imagePath;
+
+    img.src = gameState.allQuestions[gameState.currentQuestion].imagePath;
 }
+
+function preloadImages() {
+    let tryingToLoadQuestionNumber = gameState.currentQuestion;
+    let ii=0;
+
+    while (ii < 10) {
+        if (tryingToLoadQuestionNumber >= gameState.allQuestions.length) {
+            console.log("reached end.");
+            break;
+        }
+        let imgElement = document.getElementById(`preload-img-${ii}`);
+        if (!imgElement) {
+            imgElement = new Image();
+            imgElement.id = `preload-img-${ii}`;
+            imgElement.style.display = "none";
+            document.body.appendChild(imgElement);
+        }
+
+        imgElement.src = gameState.allQuestions[tryingToLoadQuestionNumber].imagePath;
+        tryingToLoadQuestionNumber++;
+        ii++;
+    }
+}
+
 function updateUIComponents(question, choicesContainer, questionNumberContainer, scoreContainer, prevButton, nextButton) {
     //we artificially pretend that there is a max number of questions, even if we have noticed that technically there are more available combos of emotions+0-3
     const totalQuestions = Math.min(gameState.allQuestions.length, imageSets[gameState.currentSet].daily_puzzle_size);
@@ -157,9 +192,7 @@ function updateUIComponents(question, choicesContainer, questionNumberContainer,
     choicesContainer.innerHTML = "";
     scoreContainer.textContent = `Score: ${gameState.numberRight} / ${gameState.numberRight + gameState.numberWrong}`;
     prevButton.disabled = gameState.currentQuestion === 0;
-    //console.log("preButton disable state:",prevButton.disabled);
     nextButton.disabled = gameState.currentQuestion >= gameState.answeredQuestions.length;
-    //console.log("nextButton disable state:",nextButton.disabled, gameState.currentQuestion, gameState.answeredQuestions);
 }
 
 function createChoiceButton(choice, answer) {
@@ -178,7 +211,7 @@ function createChoiceButton(choice, answer) {
         event.preventDefault(); // Prevent the default context menu
         event.stopPropagation();
         choiceButton.classList.toggle("excluded");
-        updateRestoreButtonVisibility();
+        document.getElementById("restore-button").style.display="block";
 
         //code to restore the #restoreButton and make it clickable so it would show all the hidden .choice-button divs, and then hide itself again, if it weren't already clickable to do that.
     //so, its not visible at first, just pops up whenever you exclude a choice.
@@ -191,13 +224,11 @@ function updateRestoreButtonVisibility() {
     let restoreButton = document.getElementById("restore-button");
     restoreButton.onclick = function(e){
         document.querySelectorAll('.choice-btn.excluded').forEach(button => {
-        button.classList.remove("excluded");
-        let restoreButton = document.getElementById("restore-button");
-        restoreButton.style.display="none";
-    });
+            button.classList.remove("excluded");
+            let restoreButton = document.getElementById("restore-button");
+            restoreButton.style.display="none";
+        });
     }
-    restoreButton.style.display = "block";
-
 }
 
 function checkAnswer(answer, selectedButton) {
@@ -326,14 +357,9 @@ function endGame() {
     `;
 
     calculateCountdown();
-    disableAllNavigation(false); // Optionally disable navigation if you do not want users navigating back
-}
 
-function disableAllNavigation(enable) {
     const prevButton = document.getElementById('prev-btn');
     const nextButton = document.getElementById('next-btn');
-
-    // Enable or disable navigation buttons based on the passed parameter
     prevButton.disabled = !enable;
     nextButton.disabled = !enable;
 }
@@ -353,16 +379,15 @@ function calculateCountdown() {
 
 function toggleExplanation() {
     const explanationText = document.getElementById("explanation-text");
-    if (gameState.isExplanationVisible) {
+    if (isExplanationVisible) {
         explanationText.style.display = "none";
-        gameState.isExplanationVisible = false;
+        isExplanationVisible = false;
     } else {
-        const explanationText = document.getElementById("explanation-text");
         const selectedSet = imageSets[gameState.currentSet];
 
         displayExplanationText(explanationText, selectedSet);
         explanationText.style.display = "block";
-        gameState.isExplanationVisible = true;
+        isExplanationVisible = true;
     }
 }
 // Function to display the explanation text
