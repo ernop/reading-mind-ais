@@ -18,8 +18,13 @@ async function initGame() {
    for (const setName of Object.keys(imageSets)) {
         const set = imageSets[setName];
         if (!set.active) continue;
-        const emotion = set.emotions[0]; // Assuming first emotion's image is representative
-        const imagePath = `./images/${setName}/${emotion.replace(' ', '')}0.png`; // Correctly accounting for potential spaces
+       let imagePath;
+        if (set.special_icon) {
+            imagePath = `./images/${setName}/${set.special_icon}`;
+        } else {
+            const emotion = set.emotions[0]; // Assuming first emotion's image is representative
+            imagePath = `./images/${setName}/${emotion.replace(' ', '_')}0.png`; // Correctly accounting for potential spaces
+        }
 
         // Creating a new option element
         const option = new Option(set.humanReadableName, setName, false, false);
@@ -63,7 +68,7 @@ async function initGame() {
 }
 
 function formatOptionWithImage(option) {
-  if (!option.id) return option.text; // adjust for placeholder if necessary
+  if (!option.id) return option.text;
   var imagePath = $(option.element).data('icon');
   var $option = $('<span><img src="' + imagePath + '" style="height:20px; width:20px; margin-right:10px;"/> ' + option.text + '</span>');
   return $option;
@@ -212,7 +217,7 @@ function createChoiceButton(choice, answer) {
         event.preventDefault(); // Prevent the default context menu
         event.stopPropagation();
         choiceButton.classList.toggle("excluded");
-        document.getElementById("restore-button").style.display="block";
+        document.getElementById("restore-button").style.display="inline-block";
 
         //code to restore the #restoreButton and make it clickable so it would show all the hidden .choice-button divs, and then hide itself again, if it weren't already clickable to do that.
     //so, its not visible at first, just pops up whenever you exclude a choice.
@@ -358,11 +363,6 @@ function endGame() {
     `;
 
     calculateCountdown();
-
-    const prevButton = document.getElementById('prev-btn');
-    const nextButton = document.getElementById('next-btn');
-    prevButton.disabled = !enable;
-    nextButton.disabled = !enable;
 }
 
 function calculateCountdown() {

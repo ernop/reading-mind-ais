@@ -1,5 +1,5 @@
 const imageSets = {
-   "midjourney-anime": {
+"midjourney-anime": {
     humanReadableName: "Anime Waifu (midjourney)",
     prompt: "A {word} facial expression on an anime waifu, facing camera, facial portrait",
     active: true,
@@ -9,14 +9,12 @@ const imageSets = {
     daily_puzzle_size:30,
     numberOfAnswerButtons: 4,
   },
-
-  "dalle3-dogs-rewrite":{
+"dalle3-dogs-rewrite":{
   humanReadableName: "Dogs of Dall-e 3",
     prompt: "A dog with WORD. The goal is to emphasize that specific exact emotion, so do not change that. You should describe and design this image, in detail with specifics on how it is illustrated, lighting, composition, style, era, as well as the objects, individuals, people, or anything else which might appear - you make the choice based on the text, and be specific. Include their orientation, light sources, directions and relationships, symbolisms, the way they are drawn, etc. Be extremely specific. Pick a situation which would naturally elicit the emotions we are portraying, to make the emotions expressed more natural.",
     active: true,
-    emotions:"aggressive, aloof, anguished, ambitious, angry, anxious, ashamed, astonished, awed, bored, calm, cautious, condescending, confused, contented, curious, determined, diligent, disgusted, ecstatic, empathetic, encouraging, enlightened, envious, exhausted, exhilarated, fascinated, fearful, foolish, forgiving, flirtatious, frustrated, giddy, gloomy, grateful, greedy, grieving, guilty, happy, hopeful, horrified, hostile, humiliated, impatient, in love, indignant, inspired, intimidated, irritated, jealous, lonely, loyal, melancholic, mischievous, mournful, oblivious, overwhelmed, passionate, perplexed, pitiful, pompous, proud, regretful, relieved, remorseful, resentful, restless, reverent, sad, serene, skeptical, stressed, surprised, sympathetic, transcendent, triumphant, trusting, uneasy, vulnerable, wistful, yearning".split(',').map(a=>a.trim()),
-
-    //angry, empathetic, trusting, surprised, guilty, proud, envious, hopeful,exhausted,anxious,condescending,pompous,flirtatious,coquettish
+    emotions:"aggressive, aloof, anguished, ambitious, angry, anxious, ashamed, astonished, awed, bored, calm, cautious, condescending, confused, contented, curious, determined, diligent, disgusted, ecstatic, empathetic, encouraging, enlightened, envious, exhausted, exhilarated, fascinated, fearful, foolish, forgiving, flirtatious, frustrated, giddy, gloomy, grateful, greedy, grieving, guilty, happy, hopeful, horrified, hostile, humiliated, impatient, in love, indignant, inspired, intimidated, irritated, jealous, lonely, loyal, melancholic, mischievous, mournful, oblivious, overwhelmed, passionate, perplexed, pitiful, pompous, proud, regretful, relieved, remorseful, resentful, restless, reverent, sad, serene, skeptical, stressed, surprised, sympathetic, transcendent, triumphant, trusting, uneasy, vulnerable, wistful, yearning".split(',').map(a=>a.trim()),     //angry, empathetic, trusting, surprised, guilty, proud, envious, hopeful,exhausted,anxious,condescending,pompous,flirtatious,coquettish
+    special_icon: "icon.png",
     source:"Dall-e 3",
     date:"May 2 2024",
     daily_puzzle_size:40,
@@ -53,7 +51,7 @@ const imageSets = {
     daily_puzzle_size:20,
     numberOfAnswerButtons: 4,
   },
- "dalle3-looks":{
+ "dalle3-people-natural":{
   humanReadableName: "Dalle3 People, Natural style",
     prompt: "<Used various LLMs to generate situtaions for the emotions, then illustrated them with Dalle3, not using the default vivid style; these are 'natural'.>",
     active: true,
@@ -68,7 +66,7 @@ const imageSets = {
   "ideogram-taylor-swift-magic-off": {
     humanReadableName: "Taylor Swift (Ideogram.ai)",
     prompt: "Taylor Swift has {word} on her face in a clear daytime photo at the beach while swimming, close up face photo, looking at the camera, she is 21 years old in 2010",
-    active: true,
+    active: false,
     emotions:"an aggressive look, an aloof look, an anguished look, an ambitious look, an angry look, an anxious look, an ashamed look, an astonished look, an awed look, a bored look, a calm look, a cautious look, a condescending look, a confused look, a contented look, a curious look, a determined look, a diligent look, a disgusted look, an ecstatic look, an empathetic look, an encouraging look, an enlightened look, an envious look, an exhausted look, an exhilarated look, a fascinated look, a fearful look, a foolish look, a forgiving look, a flirtatious look, a frustrated look, a giddy look, a gloomy look, a grateful look, a greedy look, a grieving look, a guilty look, a happy look, a hopeful look, a horrified look, a hostile look, a humiliated look, an impatient look, an in-love look, an indignant look, an inspired look, an intimidated look, an irritated look, a jealous look, a lonely look, a loyal look, a melancholic look, a mischievous look, a mournful look, an oblivious look, an overwhelmed look, a passionate look, a perplexed look, a pitiful look, a pompous look, a proud look, a regretful look, a relieved look, a remorseful look, a resentful look, a restless look, a reverent look, a sad look, a serene look, a skeptical look, a stressed look, a surprised look, a sympathetic look, a transcendent look, a triumphant look, a trusting look, an uneasy look, a vulnerable look, a wistful look, a yearning look".split(',').map(a=>a.trim()),
 
     //angry, empathetic, trusting, surprised, guilty, proud, envious, hopeful,exhausted,anxious,condescending,pompous,flirtatious,coquettish
@@ -102,7 +100,7 @@ const imageSets = {
     numberOfAnswerButtons: 4,
   },
 "dalle3-taylor-swift-eyes": {
-    humanReadableName: "Taylor Swift Eyes (Dalle-3)",
+    humanReadableName: "Taylor Swift (Dalle-3) (Eyes only)",
     prompt: "A woman who looks exactly like Taylor Swift is WORD in a clear daytime color photo looking at the camera, close up of her face, age 21, portrait, realistic, photo [eye location found via dlib]",
     active: true,
     emotions:"Anguished, Ashamed, Ecstatic, Empathetic, Exhausted, Exhilarated, Fearful, Forgiving, Grieving, Guilty, Happy, Horrified, Humiliated, In love, Indignant, Inspired, Jealous, Lonely, Melancholic, Sad".split(',').map(a=>a.trim()),
@@ -124,6 +122,4 @@ const imageSets = {
     daily_puzzle_size:30,
     numberOfAnswerButtons: 8,
   },
-
-
 };
