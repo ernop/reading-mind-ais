@@ -13,9 +13,8 @@ let currentSet = "";
 async function initGame() {
     const setDropdown = document.getElementById("set-dropdown");
     setDropdown.innerHTML = '';
-    document.getElementById('question-mark').addEventListener('click', toggleExplanation);
 
-   for (const setName of Object.keys(imageSets)) {
+    for (const setName of Object.keys(imageSets)) {
         const set = imageSets[setName];
         if (!set.active) continue;
        let imagePath;
@@ -175,7 +174,6 @@ function preloadImages() {
 
     while (ii < 10) {
         if (tryingToLoadQuestionNumber >= gameState.allQuestions.length) {
-            console.log("reached end.");
             break;
         }
         let imgElement = document.getElementById(`preload-img-${ii}`);
@@ -357,7 +355,7 @@ function endGame() {
     resultContainer.innerHTML += `
         <h2>Congratulations! You've completed the quiz.</h2>
         <p>Your final score: ${gameState.numberRight} / ${totalQuestions}.</p>
-        <p>Random guessing would have scored approximately ${expectedRandomScore} / ${totalQuestions}.</p>
+        <p>Random guessing would have scored ${expectedRandomScore} / ${totalQuestions}.</p>
         <p>Generated on: ${today.toLocaleDateString()} (${dayOfWeek})</p>
         <p>There are other sets to play in the lower left.
         <div id="countdown-container"></div>
@@ -377,25 +375,6 @@ function calculateCountdown() {
 
     const countdownContainer = document.getElementById("countdown-container");
     countdownContainer.innerHTML = `Next set available in: ${hours} hours and ${minutes} minutes.`;
-}
-
-function toggleExplanation() {
-    const explanationText = document.getElementById("explanation-text");
-    if (isExplanationVisible) {
-        explanationText.style.display = "none";
-        isExplanationVisible = false;
-    } else {
-        const selectedSet = imageSets[gameState.currentSet];
-
-        displayExplanationText(explanationText, selectedSet);
-        explanationText.style.display = "block";
-        isExplanationVisible = true;
-    }
-}
-
-// Function to display the explanation text
-function displayExplanationText(explanationText, selectedSet) {
-  explanationText.innerHTML = `<strong>SET:</strong> ${selectedSet.humanReadableName}<br>     <strong>Prompt:</strong> ${selectedSet.prompt}<br>     <strong>Emotions:</strong> ${selectedSet.emotions.join(", ")}<br>     <strong>Source:</strong> ${selectedSet.source}<br>     <strong>Date:</strong> ${selectedSet.date}`;
 }
 
 function updateScore() {

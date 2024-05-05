@@ -22,7 +22,7 @@ const imageSets = {
     source:"Dall-e 3",
     date:"May 5 2024",
     daily_puzzle_size:20,
-    numberOfAnswerButtons: 8,
+    numberOfAnswerButtons: 4,
   },
 "dalle3-still-life":{
   humanReadableName: "Still Life (Curated)",
@@ -116,7 +116,7 @@ const imageSets = {
     numberOfAnswerButtons: 4,
   },
 "ideogram-taylor-swift-magic-on": {
-    humanReadableName: "Taylor Swift (Ideogram.ai) with rewrites",
+    humanReadableName: "Taylor Swift (Ideogram.ai)",
     prompt: "Taylor Swift has {word} on her face in a clear daytime photo at the beach while swimming, close up face photo, looking at the camera, she is 21 years old in 2010",
     active: true,
     emotions:"aggressive, aloof, angry, arrogant, bored, disgusted, embarrassed, empathetic, exasperated, fearful, guilty, happy, hostile, incredulous, inlove, sad, sarcastic, silly, surprised".split(',').map(a=>a.trim()),

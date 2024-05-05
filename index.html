@@ -31,23 +31,37 @@
     #bottom-container {
         padding: 10px 20px;
         background-color: #f0f0f0;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
         position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
         box-sizing: border-box;
     }
 
-    #left-container {
-        display: flex;
-        align-items: center;
+    #left-container, #right-container {
+        flex: 1 0 40%;
+        box-sizing: border-box;
+        padding: 5px;
+        min-width:40%;
     }
 
-    #left-content {
+    @media (max-width: 600px) {
+        #left-container, #right-container, #middle-container {
+            flex: 1 1 100%; /* Allows each container to take full width of the parent */
+            min-width: 100%; /* Ensures each container takes full width on small screens */
+            text-align: center; /* Center-aligns the content */
+        }
+
+        .choice-btn{font-size:15px !important;}
+        }
+
+
+    #left-content,#middle-content {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
     }
 
@@ -65,17 +79,21 @@
     }
 
 
-    h1 {
+    h2 {
         text-align: center;
+        padding-bottom:0;
+        margin:5px 0;
     }
 
     #game-container {
-         display: flex;
+        margin-top:0;
+        display: flex;
         flex-direction: column;
         justify-content: center;
         max-height: calc(100vh - 40px); /* Adjust 40px based on the fixed bottom container's height */
         overflow-y: auto;
         padding: 20px;
+        padding-top:5px;
         box-sizing: border-box;
         text-align: center;
     }
@@ -87,6 +105,7 @@
 
     #image-container img {
         max-height: 100%;
+        max-width: 100%;
         width: auto;
         display: block;
         margin: 0 auto;
@@ -94,12 +113,12 @@
 
     #below-image-container {
         width: 100%;            /* Takes full width of its parent to utilize space */
-    display: flex;          /* Enables flexbox properties for its children */
-    flex-direction: column; /* Stacks children vertically */
-    align-items: center;    /* Aligns children horizontally in the center */
-    justify-content: center; /* Optionally center content vertically inside the container */
-    padding: 10px;          /* Padding around the content inside below-image-container */
-    box-sizing: border-box;
+        display: flex;          /* Enables flexbox properties for its children */
+        flex-direction: column; /* Stacks children vertically */
+        align-items: center;    /* Aligns children horizontally in the center */
+        justify-content: center; /* Optionally center content vertically inside the container */
+        padding: 10px;          /* Padding around the content inside below-image-container */
+        box-sizing: border-box;
     }
 
     #choices-container {
@@ -139,7 +158,7 @@
 
     /* Next problem button styling */
     .next-problem-btn {
-        background-color: #4CAF50; /* Green color */
+        background-color: green;
         color: white;
         padding: 10px 20px;
         margin-top: 10px;
@@ -199,12 +218,16 @@
       display: inline-block;
       align-items: center;
       justify-content: center;
+      overflow: hidden; /* Hide content that overflows the container's initial height */
+      max-height: 0; /* Start with no content showing */
+        transition: max-height 0.3s ease-out; /* Smooth transition for expanding and collapsing */
     }
 
     #question-number-container{
         text-align: center;
         margin-bottom: 10px;
         height:20px;
+        white-space: nowrap;
     }
 
     #question-mark {
@@ -272,12 +295,18 @@
     #restore-button:hover{
         background-color: #e0e0e0;
     }
+    #home-link {
+    display: block; /* Makes the element occupy the full width of its container, forcing it onto a new line */
+    width: 100%;    /* Ensures it takes full width to reinforce block display */
+    text-align: left; /* Optional, aligns the link to the left */
+    margin-top: 10px; /* Adds space above the link for better separation */
+}
 }
 
 </style>
 </head>
 <body>
-    <h1>Reading the Mind in the AI(generated image)s</h1>
+    <h2>Reading the Mind in the AI(generated image)s</h2>
     <div id="game-container">
         <div id="image-container">
             <img id="question-image" src="" alt="Question Image">
@@ -293,9 +322,9 @@
         <div id="left-container">
             <div id="left-content">
                 <select id="set-dropdown"></select>
-                <div id="question-mark">❔</div>
+                <div style="display:block;" id=home-link><a href=http://fuseki.net>fuseki.net</a></div>
                 <div id="info-container">
-                    <div style="display:none;" id="explanation-text"></div>
+
                 </div>
             </div>
         </div>
