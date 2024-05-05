@@ -1,6 +1,6 @@
 import os,shutil
 
-folder = "/mnt/d/proj/dalle3/output2/"
+folder = "/mnt/d/proj/dalle3/output/efef/eval/done"
 image_files = [f for f in os.listdir(folder)]
 
 for image_file in image_files:

@@ -1,6 +1,42 @@
 const imageSets = {
+
+"midjourney-woman-russian": {
+    humanReadableName: "Russian Woman (1915s)",
+    prompt: "a very {WORD} woman from Perm, Russia, 1915s style photo, close up, very sharp and clear color photo, looking at camera, centered --seed 654897 --ar 1:1",
+    active: true,
+    emotions:"affectionate,aggressive,angry,anxious,ashamed,awed,bored,calm,compassionate,confused,contented,curious,delighted,flirtatious,guilty,hateful,hopeful,horrified,hostile,humiliated,interested,irritated,jealous,joking".split(',').map(a=>a.trim()),
+    //disappointed, hungry, sleepy, exhausted, anxious, bored, condescending, pompous, flirtatious, coquettish, lonely, motherly, determined, hopeless
+    source:"Midjourney v6",
+    date:"April 27 2024",
+    daily_puzzle_size:20,
+    numberOfAnswerButtons: 4
+  },
+
+
+"dalle3-still-life":{
+  humanReadableName: "Still Life (Curated)",
+    prompt: "A young man whose face embodies {WORD}, looking at camera, close up, 1950 england --ar 1:1 --seed 445566",
+    active: true,
+    emotions:"aggression,ambition,anger,anguish,anxiety,astonishment,awe,betrayal,boredom,calm,camaraderie,condescension,contented,contentment,creativity,curiosity,defeat,determination,diligence,disgust,ecstasy,enchantment,enlightenment,envy,exasperation,exhaustion,exhilaration,fascination,fear,foolishness,gloom,grandiosity,gratitude,greed,grumpiness,guilt,happiness,hope,hostility,humility,impatience,indignation,irritation,jealousy,loneliness,love,loyalty,melancholy,mischievousness,mournful,mourning,nostalgia,obliviousness,overwhelm,passion,perplexity,pitiful,pity,pomposity,pride,rebellion,regret,relief,remorse,resentment,revenge,reverence,sacrifice,sadness,serenity,shame,skepticism,stress,surprise,sympathy,thrill,transcendence,triumph,trust,unease,unity,valor,veneration,vigilance,vulnerability,yearning".split(',').map(a=>a.trim()),
+    special_icon: "icon.png",
+    source:"Dall-e 3",
+    date:"May 5 2024",
+    daily_puzzle_size:20,
+    numberOfAnswerButtons: 8,
+  },
+"dalle3-still-life":{
+  humanReadableName: "Still Life (Curated)",
+    prompt: "Your subject is the feeling: {WORD}. Portray this concept thorougly, and focus on this specific single concept and feeling, only.  Identify the specific aspects of this feeling in highly technical terms, specifically excluding all nearby emotions. Then, compose a still life whose design, elements, style, colors, textures, orientation, complexity or simplicity, taste, the form of the artwork, the apparent age, tradition, or modernity of the image, its composition, and every other aspect of it fully embody the very specific aspects of this singular emotion in an extremely intense, poignant, deeply moving, and very clear, obvious and distinct way. There should be a deep and complex   relationship between the elements. Use specific styles, ranging from hypermodern to traditional, conservative, ancient, foreign, european, etc.  Include the following for things which appear: their orientation, light sources, facing direction, and interanl relationships as well as relation to the viewer, symbolisms, the way they are drawn, etc. Be extremely specific on exactly what should appear, and where, within the image. No human face appears at all. Exclude all textual elements. You may need to be very wordy with your output, more than normal, to make sure you cover all the required elements. This is required; you MUST output a very long and hyper specific prompt with specific artists and styles mentioned. [among other earlier prompts; these are also mostly 'natural' mode with a few 'vivid' mixed in.]",
+    active: true,
+    emotions:"aggression,ambition,anger,anguish,anxiety,astonishment,awe,betrayal,boredom,calm,camaraderie,condescension,contented,contentment,creativity,curiosity,defeat,determination,diligence,disgust,ecstasy,enchantment,enlightenment,envy,exasperation,exhaustion,exhilaration,fascination,fear,foolishness,gloom,grandiosity,gratitude,greed,grumpiness,guilt,happiness,hope,hostility,humility,impatience,indignation,irritation,jealousy,loneliness,love,loyalty,melancholy,mischievousness,mournful,mourning,nostalgia,obliviousness,overwhelm,passion,perplexity,pitiful,pity,pomposity,pride,rebellion,regret,relief,remorse,resentment,revenge,reverence,sacrifice,sadness,serenity,shame,skepticism,stress,surprise,sympathy,thrill,transcendence,triumph,trust,unease,unity,valor,veneration,vigilance,vulnerability,yearning".split(',').map(a=>a.trim()),
+    special_icon: "icon.png",
+    source:"Dall-e 3",
+    date:"May 5 2024",
+    daily_puzzle_size:20,
+    numberOfAnswerButtons: 8,
+  },
 "midjourney-anime": {
-    humanReadableName: "Anime Waifu (midjourney)",
+    humanReadableName: "Anime Waifu (mj)",
     prompt: "A {word} facial expression on an anime waifu, facing camera, facial portrait",
     active: true,
     emotions:"calm,flirtatious,curious,hostile,irritated,ashamed,aggressive,bored,confused,in love,happy,sad,fearful, angry, empathetic, trusting, grateful, surprised, guilty, proud, envious, disgusted, hopeful,exhausted,anxious,bored,condescending,pompous,flirtatious,coquettish".split(',').map(a=>a.trim()),
@@ -9,11 +45,15 @@ const imageSets = {
     daily_puzzle_size:30,
     numberOfAnswerButtons: 4,
   },
+
+
+
+
 "dalle3-dogs-rewrite":{
   humanReadableName: "Dogs of Dall-e 3",
     prompt: "A dog with WORD. The goal is to emphasize that specific exact emotion, so do not change that. You should describe and design this image, in detail with specifics on how it is illustrated, lighting, composition, style, era, as well as the objects, individuals, people, or anything else which might appear - you make the choice based on the text, and be specific. Include their orientation, light sources, directions and relationships, symbolisms, the way they are drawn, etc. Be extremely specific. Pick a situation which would naturally elicit the emotions we are portraying, to make the emotions expressed more natural.",
     active: true,
-    emotions:"aggressive, aloof, anguished, ambitious, angry, anxious, ashamed, astonished, awed, bored, calm, cautious, condescending, confused, contented, curious, determined, diligent, disgusted, ecstatic, empathetic, encouraging, enlightened, envious, exhausted, exhilarated, fascinated, fearful, foolish, forgiving, flirtatious, frustrated, giddy, gloomy, grateful, greedy, grieving, guilty, happy, hopeful, horrified, hostile, humiliated, impatient, in love, indignant, inspired, intimidated, irritated, jealous, lonely, loyal, melancholic, mischievous, mournful, oblivious, overwhelmed, passionate, perplexed, pitiful, pompous, proud, regretful, relieved, remorseful, resentful, restless, reverent, sad, serene, skeptical, stressed, surprised, sympathetic, transcendent, triumphant, trusting, uneasy, vulnerable, wistful, yearning".split(',').map(a=>a.trim()),     //angry, empathetic, trusting, surprised, guilty, proud, envious, hopeful,exhausted,anxious,condescending,pompous,flirtatious,coquettish
+    emotions:"aggressive, aloof, anguished, ambitious, angry, anxious, ashamed, astonished, awed, bored, calm, cautious, condescending, confused, contented, curious, determined, diligent, disgusted, ecstatic, empathetic, encouraging, enlightened, envious, exhausted, exhilarated, fascinated, fearful, foolish, forgiving, flirtatious, frustrated, giddy, gloomy, grateful, greedy, grieving, guilty, happy, hopeful, horrified, hostile, humiliated, impatient, in love, indignant, inspired, intimidated, irritated, jealous, lonely, loyal, melancholic, mischievous, mournful, oblivious, overwhelmed, passionate, perplexed, pitiful, pompous, proud, regretful, relieved, remorseful, resentful, restless, reverent, sad, serene, skeptical, stressed, surprised, sympathetic, transcendent, triumphant, trusting, uneasy, vulnerable, wistful, yearning".split(',').map(a=>a.trim()),
     special_icon: "icon.png",
     source:"Dall-e 3",
     date:"May 2 2024",
@@ -31,17 +71,6 @@ const imageSets = {
     daily_puzzle_size:30,
     numberOfAnswerButtons: 4,
   },
-"midjourney-woman-russian": {
-    humanReadableName: "Russian Woman (1915s)",
-    prompt: "a very {WORD} woman from Perm, Russia, 1915s style photo, close up, very sharp and clear color photo, looking at camera, centered --seed 654897 --ar 1:1",
-    active: true,
-    emotions:"affectionate,aggressive,angry,anxious,ashamed,awed,bored,calm,compassionate,confused,contented,curious,delighted,flirtatious,guilty,hateful,hopeful,horrified,hostile,humiliated,interested,irritated,jealous,joking".split(',').map(a=>a.trim()),
-    //disappointed, hungry, sleepy, exhausted, anxious, bored, condescending, pompous, flirtatious, coquettish, lonely, motherly, determined, hopeless
-    source:"Midjourney v6",
-    date:"April 27 2024",
-    daily_puzzle_size:20,
-    numberOfAnswerButtons: 4
-  },
 "midjourney-man-british":{
     humanReadableName: "English Man 30yo in 1980 london (1915s)",
     prompt: "a {WORD} white man, 30 years old, in 1980 London, close up, clear, outdoor photograph, subject in center frame, 3/4 profile, subject looking at camera --ar 3:2 --seed 654987",
@@ -53,7 +82,7 @@ const imageSets = {
     numberOfAnswerButtons: 3,
   },
   "midjourney-audrey-hepburn": {
-    humanReadableName: "Audrey Hepburn (in Midjourney)",
+    humanReadableName: "Audrey Hepburn (in mj)",
     prompt: "Audrey Hepburn is {WORD} in a clear daytime color photo from 1960 looking at the camera. --ar 1:1 --seed 789789",
     active: true,
     emotions:"in love,happy,sad,fearful, angry, empathetic, trusting, grateful, surprised, guilty, proud, envious, disgusted, hopeful,exhausted,anxious,bored,condescending,pompous,flirtatious,coquettish".split(',').map(a=>a.trim()),
@@ -97,13 +126,14 @@ const imageSets = {
     numberOfAnswerButtons: 4,
   },
 "dalle3-taylor-swift-face": {
-    humanReadableName: "Taylor Swift (Dalle-3) (Full Portrait)",
+    humanReadableName: "Taylor Swift (Dalle-3) (Portrait)",
     prompt: "A woman who looks exactly like Taylor Swift is WORD in a clear daytime color photo looking at the camera, close up of her face, age 21, portrait, realistic, photo",
     active: true,
     emotions:"Anguished, Ashamed, Ecstatic, Empathetic, Exhausted, Exhilarated, Fearful, Forgiving, Grieving, Guilty, Happy, Horrified, Humiliated, In love, Indignant, Inspired, Jealous, Lonely, Melancholic, Sad".split(',').map(a=>a.trim()),
     source:"Dalle-3",
     date:"April 29 2024",
     daily_puzzle_size:20,
+    special_icon: "icon.png",
     numberOfAnswerButtons: 4,
   },
 "dalle3-taylor-swift-eyes": {
@@ -114,11 +144,12 @@ const imageSets = {
     source:"Dalle-3",
     date:"April 29 2024",
     daily_puzzle_size:20,
+    special_icon: "icon.png",
     numberOfAnswerButtons: 4,
   },
 
   "midjourney-anime-hard": {
-    humanReadableName: "Anime Waifu (midjourney), 8 choices",
+    humanReadableName: "Anime Waifu (mj), 8 choices",
     prompt: "A {word} facial expression on an anime waifu, facing camera, facial portrait",
     active: true,
     emotions:"flirtatious,calm,curious,hostile,irritated,ashamed,aggressive,bored,confused,in love,happy,sad,fearful, angry, empathetic, trusting, grateful, surprised, guilty, proud, envious, disgusted, hopeful,exhausted,anxious,bored,condescending,pompous,flirtatious,coquettish".split(',').map(a=>a.trim()),
