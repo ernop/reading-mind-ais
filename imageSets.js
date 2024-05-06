@@ -1,7 +1,7 @@
 const imageSets = {
 
 "midjourney-woman-russian": {
-    humanReadableName: "Russian Woman (1915s)",
+    humanReadableName: "Russian Woman (1915s mj)",
     prompt: "a very {WORD} woman from Perm, Russia, 1915s style photo, close up, very sharp and clear color photo, looking at camera, centered --seed 654897 --ar 1:1",
     active: true,
     emotions:"affectionate,aggressive,angry,anxious,ashamed,awed,bored,calm,compassionate,confused,contented,curious,delighted,flirtatious,guilty,hateful,hopeful,horrified,hostile,humiliated,interested,irritated,jealous,joking".split(',').map(a=>a.trim()),
@@ -12,6 +12,17 @@ const imageSets = {
     numberOfAnswerButtons: 4
   },
 
+"midjourney-eyes-2":{
+  humanReadableName: "Russain Woman Eyes (1915s mj 2)",
+    prompt: "A young man whose face embodies {WORD}, looking at camera, close up, 1950 england --ar 1:1 --seed 445566",
+    active: true,
+    emotions:"affectionate,aggression,ambition,anger,anxiety,awe,boredom,calm,compassionate,confused,contented,curiosity,delighted,flirtatious,guilt,hateful,hope,horrified,hostility,humiliated,interested,irritation,jealousy,shame".split(',').map(a=>a.trim()),
+    special_icon: "icon.png",
+    source:"Dall-e 3",
+    date:"May 5 2024",
+    daily_puzzle_size:20,
+    numberOfAnswerButtons: 4,
+  },
 
 "dalle3-still-life":{
   humanReadableName: "Still Life (Curated)",
@@ -33,7 +44,7 @@ const imageSets = {
     source:"Dall-e 3",
     date:"May 5 2024",
     daily_puzzle_size:20,
-    numberOfAnswerButtons: 8,
+    numberOfAnswerButtons: 4,
   },
 "midjourney-anime": {
     humanReadableName: "Anime Waifu (mj)",
@@ -45,10 +56,16 @@ const imageSets = {
     daily_puzzle_size:30,
     numberOfAnswerButtons: 4,
   },
-
-
-
-
+"midjourney-anime-hard": {
+    humanReadableName: "Anime Waifu (mj), 8 choices",
+    prompt: "A {word} facial expression on an anime waifu, facing camera, facial portrait",
+    active: true,
+    emotions:"flirtatious,calm,curious,hostile,irritated,ashamed,aggressive,bored,confused,in love,happy,sad,fearful, angry, empathetic, trusting, grateful, surprised, guilty, proud, envious, disgusted, hopeful,exhausted,anxious,bored,condescending,pompous,flirtatious,coquettish".split(',').map(a=>a.trim()),
+    source:"Midjourney v6",
+    date:"April 28 2024",
+    daily_puzzle_size:30,
+    numberOfAnswerButtons: 8,
+  },
 "dalle3-dogs-rewrite":{
   humanReadableName: "Dogs of Dall-e 3",
     prompt: "A dog with WORD. The goal is to emphasize that specific exact emotion, so do not change that. You should describe and design this image, in detail with specifics on how it is illustrated, lighting, composition, style, era, as well as the objects, individuals, people, or anything else which might appear - you make the choice based on the text, and be specific. Include their orientation, light sources, directions and relationships, symbolisms, the way they are drawn, etc. Be extremely specific. Pick a situation which would naturally elicit the emotions we are portraying, to make the emotions expressed more natural.",
@@ -148,14 +165,5 @@ const imageSets = {
     numberOfAnswerButtons: 4,
   },
 
-  "midjourney-anime-hard": {
-    humanReadableName: "Anime Waifu (mj), 8 choices",
-    prompt: "A {word} facial expression on an anime waifu, facing camera, facial portrait",
-    active: true,
-    emotions:"flirtatious,calm,curious,hostile,irritated,ashamed,aggressive,bored,confused,in love,happy,sad,fearful, angry, empathetic, trusting, grateful, surprised, guilty, proud, envious, disgusted, hopeful,exhausted,anxious,bored,condescending,pompous,flirtatious,coquettish".split(',').map(a=>a.trim()),
-    source:"Midjourney v6",
-    date:"April 28 2024",
-    daily_puzzle_size:30,
-    numberOfAnswerButtons: 8,
-  },
+
 };

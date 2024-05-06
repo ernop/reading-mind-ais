@@ -6,7 +6,7 @@ import os
 # Initialize dlib's face detector and load the facial landmark predictor
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor('../shape_predictor_68_face_landmarks.dat')
-cnn_face_detector= dlib.cnn_face_detection_model_v1("../mmod_human_face_detector.dat")
+#~ cnn_face_detector= dlib.cnn_face_detection_model_v1("../mmod_human_face_detector.dat")
 
 #~ Points 1-17: Jawline
 #~ Points 18-22: Right eyebrow
@@ -20,12 +20,14 @@ cnn_face_detector= dlib.cnn_face_detection_model_v1("../mmod_human_face_detector
 
 def doFolder(folder):
     for filename in sorted(os.listdir(folder), key=lambda fn:fn):
+        if '(1)' in filename or '(2)' in filename or '(3)' in filename or '(4)' in filename:
+            continue
         if not filename.endswith(".png"):
             continue
         fp=os.path.join(folder, filename)
         res1=doImage(fp)
-        if not res1:
-            doImageCnn(fp)
+        #~ if not res1:
+            #~ doImageCnn(fp)
 
 def doImage(image_path):
     image = cv2.imread(image_path)
@@ -103,7 +105,6 @@ def doImageCnn(image_path):
     if not detections:
         print("no CNN faces found in",image_path)
         return
-    import ipdb;ipdb.set_trace()
     for detection in detections:
         ii=ii+1
         x, y, w, h = detection.rect.left(), detection.rect.top(), detection.rect.width(), detection.rect.height()
@@ -118,5 +119,6 @@ def doImageCnn(image_path):
     cv2.imwrite(marked_path, image)
     print(marked_path)
 
-doFolder("/mnt/d/proj/dalle3/output/")
+#doFolder("/mnt/d/proj/dalle3/output/")
+doFolder("/mnt/d/proj/reading-mind/reading-mind-ais/images/mj-teacher/")
 #doImage("/mnt/c/Screenshots/Screenshot_20240504083558.png")

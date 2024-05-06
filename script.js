@@ -76,6 +76,8 @@ function formatOptionWithImage(option) {
 // every set should be totally independent. so you can swap between sets and pick up where you left off and stuff like that.
 //really, then, the way this is now, it reloads every time. but it would be cool if the page had more of a state so you could do 5 questions, then switch sets, then continue back again.
 async function changeSet(setName) {
+    document.getElementById("result-container").innerHTML = ""; // Clear previous results
+    document.getElementById("question-image").src="";
     gameState=gameStates[setName];
     loadAllQuestions();
     displayQuestion();
@@ -150,17 +152,16 @@ function displayQuestion() {
 function updateQuestionImage(questionImage, imagePath) {
     const img = new Image();
     img.onload = function() {
-        questionImage.src = this.src; // Set the image only after it has loaded successfully
-        preloadImages(); // Start preloading next images
+        questionImage.src = this.src;
+        preloadImages();
     };
 
     img.onerror = function() {
-        // Handle the case where the image can't load
         gameState.allQuestions.splice(gameState.currentQuestion, 1); // Remove the invalid question
         if (gameState.currentQuestion >= gameState.allQuestions.length) {
-            endGame(); // End the game if there are no more questions
+            endGame();
         } else {
-            displayQuestion(); // Display the next question
+            displayQuestion();
         }
         //we only lookahead when we have success, cause in the failure case the whole updateQI will be called again anyway.
     };
